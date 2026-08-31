@@ -9,8 +9,8 @@ interface Props {
   errorText: string;
   confirmLabel: string;
   onClose: () => void;
-  /** Returns true when the PIN was accepted. */
-  onConfirm: (pin: string) => boolean;
+  /** Resolves true when the PIN was accepted. Checked server-side. */
+  onConfirm: (pin: string) => Promise<boolean>;
 }
 
 /**
@@ -28,18 +28,26 @@ export function PinDialog({
 }: Props) {
   const [value, setValue] = useState('');
   const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (open) {
       setValue('');
       setError(false);
+      setBusy(false);
     }
   }, [open]);
 
-  const submit = () => {
-    if (onConfirm(value)) return;
-    setError(true);
-    setValue('');
+  const submit = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (await onConfirm(value)) return;
+      setError(true);
+      setValue('');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -53,7 +61,7 @@ export function PinDialog({
             setError(false);
           }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') submit();
+            if (e.key === 'Enter') void submit();
           }}
           type="password"
           inputMode="numeric"
@@ -96,8 +104,10 @@ export function PinDialog({
             Cancel
           </button>
           <button
-            onClick={submit}
+            onClick={() => void submit()}
+            disabled={busy}
             style={{
+              opacity: busy ? 0.6 : 1,
               background: 'var(--seal-red)',
               color: '#fff',
               border: '1px solid transparent',

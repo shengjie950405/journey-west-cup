@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog } from './Dialog';
 import { FIELDS, type Game } from '../data/games';
-import type { SchedOverride, Score } from '../lib/storage';
+import type { SchedOverride, Score } from '../../shared/types';
 
 interface Props {
   game: Game;

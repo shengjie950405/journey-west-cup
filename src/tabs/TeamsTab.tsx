@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CONFIG } from '../config';
 import { SectionHeading } from '../components/SectionHeading';
 import { ORDERED_TEAMS, type Gender, type Player, type TeamId } from '../data/teams';
@@ -7,12 +7,13 @@ import type { Tournament } from '../lib/useTournament';
 
 interface Props {
   t: Tournament;
-  admin: boolean;
+  /** Captains and admins may edit team names and rosters. */
+  canEdit: boolean;
   openTeam: TeamId | null;
   setOpenTeam: (id: TeamId | null) => void;
 }
 
-export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
+export function TeamsTab({ t, canEdit, openTeam, setOpenTeam }: Props) {
   const showCn = CONFIG.showChinese;
 
   return (
@@ -129,7 +130,7 @@ export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
                   background: 'var(--paper)',
                 }}
               >
-                {admin && (
+                {canEdit && (
                   <RenameRow
                     initial={t.teamName(tm.id)}
                     onSave={(name) => t.renameTeam(tm.id, name)}
@@ -137,7 +138,7 @@ export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
                 )}
                 <RosterSection
                   color={tm.color}
-                  admin={admin}
+                  admin={canEdit}
                   roster={t.roster(tm.id)}
                   onChange={(players) => t.setRoster(tm.id, players)}
                 />
@@ -151,6 +152,9 @@ export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
     </div>
   );
 }
+
+/** How long to wait after the last keystroke before pushing a roster edit. */
+const COMMIT_DELAY_MS = 600;
 
 const GENDER_FG: Record<Gender, string> = { F: 'var(--seal-red-deep)', M: '#2c3f6b' };
 const GENDER_BG: Record<Gender, string> = { F: '#f3e2df', M: '#dde4f2' };
@@ -170,17 +174,46 @@ function RosterSection({
   roster: Player[];
   onChange: (players: Player[]) => void;
 }) {
-  const patch = (i: number, next: Partial<Player>) =>
-    onChange(roster.map((p, j) => (j === i ? { ...p, ...next } : p)));
-  const remove = (i: number) => onChange(roster.filter((_, j) => j !== i));
-  const add = () =>
-    onChange([...roster, { name: '', gender: 'M', num: 0, captain: false }]);
+  // Edits are held locally and pushed once the typing stops — otherwise every
+  // keystroke would be its own round trip to the server.
+  const [rows, setRows] = useState<Player[]>(roster);
+  const dirty = useRef(false);
+  const serialized = JSON.stringify(roster);
 
-  const women = roster.filter((p) => p.gender === 'F').length;
-  const men = roster.length - women;
+  // Held in a ref so a parent re-render (a poll tick) cannot restart the timer.
+  const commit = useRef(onChange);
+  commit.current = onChange;
+
+  // Accept incoming server changes, but never overwrite an in-progress edit.
+  useEffect(() => {
+    if (!dirty.current) setRows(roster);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serialized]);
+
+  useEffect(() => {
+    if (!dirty.current) return;
+    const id = setTimeout(() => {
+      dirty.current = false;
+      commit.current(rows);
+    }, COMMIT_DELAY_MS);
+    return () => clearTimeout(id);
+  }, [rows]);
+
+  const edit = (next: Player[]) => {
+    dirty.current = true;
+    setRows(next);
+  };
+
+  const patch = (i: number, next: Partial<Player>) =>
+    edit(rows.map((p, j) => (j === i ? { ...p, ...next } : p)));
+  const remove = (i: number) => edit(rows.filter((_, j) => j !== i));
+  const add = () => edit([...rows, { name: '', gender: 'M', num: 0, captain: false }]);
+
+  const women = rows.filter((p) => p.gender === 'F').length;
+  const men = rows.length - women;
 
   if (!admin) {
-    if (!roster.length) {
+    if (!rows.length) {
       return (
         <div style={{ fontSize: 13, color: 'var(--text-faint)', padding: '2px 0' }}>
           Roster not posted yet.
@@ -189,7 +222,7 @@ function RosterSection({
     }
     return (
       <>
-        {roster.map((p, i) => (
+        {rows.map((p, i) => (
           <div
             key={i}
             style={{ display: 'flex', alignItems: 'center', gap: 10 }}
@@ -234,14 +267,14 @@ function RosterSection({
             </span>
           </div>
         ))}
-        <RosterSummary count={roster.length} men={men} women={women} />
+        <RosterSummary count={rows.length} men={men} women={women} />
       </>
     );
   }
 
   return (
     <>
-      {roster.map((p, i) => (
+      {rows.map((p, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <input
             value={p.num || ''}
@@ -373,8 +406,8 @@ function RosterSection({
         + Add player
       </button>
 
-      {roster.length > 0 && (
-        <RosterSummary count={roster.length} men={men} women={women} />
+      {rows.length > 0 && (
+        <RosterSummary count={rows.length} men={men} women={women} />
       )}
     </>
   );

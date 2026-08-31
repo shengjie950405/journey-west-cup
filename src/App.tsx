@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { CONFIG, EVENT } from './config';
 import { PinDialog } from './components/PinDialog';
+import { SyncBadge } from './components/SyncBadge';
 import { ScoreDialog } from './components/ScoreDialog';
 import { SealBadge } from './components/SealBadge';
 import type { Game } from './data/games';
 import type { TeamId } from './data/teams';
 import { gameFieldOf, gameTimeOf, refLabel } from './lib/tournament';
+import { checkPin } from './lib/sync';
 import { useTournament } from './lib/useTournament';
 import { FieldsTab } from './tabs/FieldsTab';
 import { GamesTab } from './tabs/GamesTab';
@@ -28,12 +30,15 @@ export function App() {
   const showCn = CONFIG.showChinese;
 
   const [tab, setTab] = useState<Tab>('games');
-  const [admin, setAdmin] = useState(CONFIG.defaultAdmin);
   const [pinOpen, setPinOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [editGame, setEditGame] = useState<Game | null>(null);
   const [openTeam, setOpenTeam] = useState<TeamId | null>(null);
   const [openStory, setOpenStory] = useState<TeamId | null>(null);
+
+  const admin = t.isAdmin;
+  const roleLabel = t.role === 'admin' ? 'ADMIN' : t.role === 'captain' ? 'CAPTAIN' : 'PLAYER';
+  const signedIn = t.role !== 'player';
 
   /** Name for a slot, falling back to its placeholder label while undecided. */
   const sideName = (ref: string) => {
@@ -91,40 +96,54 @@ export function App() {
               fontSize: 11.5,
               color: 'rgba(238,241,248,.65)',
               letterSpacing: '.03em',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {EVENT.subtitle}
           </div>
         </div>
-        <button
-          onClick={() => (admin ? setAdmin(false) : setPinOpen(true))}
+        <div
           style={{
             flex: 'none',
             display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            border: `1px solid ${admin ? 'var(--seal-red)' : 'rgba(238,241,248,.3)'}`,
-            background: admin ? 'var(--seal-red)' : 'rgba(238,241,248,.1)',
-            color: admin ? '#fff' : 'rgba(238,241,248,.8)',
-            borderRadius: 999,
-            padding: '5px 11px',
-            fontFamily: 'var(--font-body)',
-            fontWeight: 700,
-            fontSize: 12,
-            cursor: 'pointer',
-            letterSpacing: '.04em',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: 3,
           }}
         >
-          <span
+          <button
+            onClick={() => (signedIn ? t.signOut() : setPinOpen(true))}
+            title={signedIn ? 'Tap to sign out' : 'Sign in to edit'}
             style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: admin ? '#fff' : 'var(--gold)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              border: `1px solid ${signedIn ? 'var(--seal-red)' : 'rgba(238,241,248,.3)'}`,
+              background: signedIn ? 'var(--seal-red)' : 'rgba(238,241,248,.1)',
+              color: signedIn ? '#fff' : 'rgba(238,241,248,.8)',
+              borderRadius: 999,
+              padding: '5px 11px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: 'pointer',
+              letterSpacing: '.04em',
             }}
-          />
-          {admin ? 'ADMIN' : 'PLAYER'}
-        </button>
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: signedIn ? '#fff' : 'var(--gold)',
+              }}
+            />
+            {roleLabel}
+          </button>
+          <SyncBadge status={t.status} pending={t.pendingCount} />
+        </div>
       </header>
 
       <main
@@ -133,7 +152,7 @@ export function App() {
       >
         {tab === 'games' && <GamesTab t={t} admin={admin} onEditGame={setEditGame} />}
         {tab === 'teams' && (
-          <TeamsTab t={t} admin={admin} openTeam={openTeam} setOpenTeam={setOpenTeam} />
+          <TeamsTab t={t} canEdit={t.canEditTeams} openTeam={openTeam} setOpenTeam={setOpenTeam} />
         )}
         {tab === 'field' && <FieldsTab />}
         {tab === 'rules' && <RulesTab />}
@@ -197,14 +216,21 @@ export function App() {
 
       <PinDialog
         open={pinOpen}
-        title="Admin sign-in"
-        prompt="Enter the admin PIN to unlock schedule and score editing."
+        title="Sign in"
+        prompt={
+          <>
+            Captains: enter the captain PIN to edit team names and rosters.
+            <br />
+            Organisers: the admin PIN also unlocks scores, times and fields.
+          </>
+        }
         errorText="Wrong PIN — try again."
         confirmLabel="Unlock"
         onClose={() => setPinOpen(false)}
-        onConfirm={(pin) => {
-          if (pin !== CONFIG.adminPin) return false;
-          setAdmin(true);
+        onConfirm={async (pin) => {
+          const nextRole = await checkPin(pin);
+          if (nextRole === 'player') return false;
+          await t.signIn(pin, nextRole);
           setPinOpen(false);
           return true;
         }}
@@ -222,8 +248,12 @@ export function App() {
         errorText="Wrong PIN — nothing was reset."
         confirmLabel="Reset everything"
         onClose={() => setResetOpen(false)}
-        onConfirm={(pin) => {
-          if (pin !== CONFIG.adminPin) return false;
+        onConfirm={async (pin) => {
+          // Reset is admin-only, and re-entering the PIN also upgrades this
+          // device's session so the queued patch is sent with admin rights.
+          const nextRole = await checkPin(pin);
+          if (nextRole !== 'admin') return false;
+          await t.signIn(pin, nextRole);
           t.resetAll();
           setEditGame(null);
           setOpenTeam(null);

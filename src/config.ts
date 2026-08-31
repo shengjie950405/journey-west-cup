@@ -1,9 +1,11 @@
-/** Tournament-wide settings. */
+/**
+ * Client-side settings only.
+ *
+ * The admin and captain PINs are NOT here — they live in Netlify environment
+ * variables (`ADMIN_PIN`, `CAPTAIN_PIN`) and are checked server-side, so they
+ * are never shipped to the browser.
+ */
 export const CONFIG = {
-  /** PIN that unlocks admin editing, and confirms a tournament reset. */
-  adminPin: '8888',
-  /** Start the app already in admin mode (useful for a dedicated scorer device). */
-  defaultAdmin: false,
   /** Show the Chinese calligraphy accents alongside the English copy. */
   showChinese: true,
 };

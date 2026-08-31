@@ -1,6 +1,6 @@
 import { GAMES, GAME_BY_ID, REF_LABEL, type Game, type SlotRef } from '../data/games';
 import { TEAMS, team, type Team, type TeamId } from '../data/teams';
-import type { Score, SchedOverride } from './storage';
+import type { Score, SchedOverride } from '../../shared/types';
 
 export type Pool = 'A' | 'B';
 

@@ -1,24 +1,8 @@
-export type Gender = 'M' | 'F';
-
-export interface Player {
-  name: string;
-  gender: Gender;
-  num: number;
-  captain: boolean;
-}
+export type { Gender, Player, TeamId } from '../../shared/types';
+import type { TeamId } from '../../shared/types';
 
 /** [otherTeamId, description of the bond] */
 export type Relation = [TeamId, string];
-
-export type TeamId =
-  | 'dasheng'
-  | 'yuanshuai'
-  | 'luohan'
-  | 'shengseng'
-  | 'aolie'
-  | 'rulai'
-  | 'meiyao'
-  | 'nichang';
 
 export interface Team {
   id: TeamId;

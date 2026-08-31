@@ -26,9 +26,12 @@ npm run typecheck
 npm run smoke                 # end-to-end smoke test against a running preview
 ```
 
-`npm run smoke` drives a real browser through the whole app: every tab, the admin PIN
-gate, entering all 12 pool scores, bracket seeding, persistence across reload, and the
-hidden reset. Start `npm run preview` first. If Playwright's own Chromium isn't
+`npm run smoke` drives a real browser through the whole app: every tab, all three roles,
+a captain being refused score access, roster editing, entering all 12 pool scores,
+bracket seeding, persistence across reload, and the hidden reset. It resets the server
+first, so it does not depend on earlier runs. Start `npm run preview` first — dev and
+preview serve an in-memory stand-in for the API that reuses the real `shared/state`
+logic, so permission rules are exercised as written. If Playwright's own Chromium isn't
 installed, point it at one with `CHROMIUM_PATH=/path/to/chrome npm run smoke`.
 
 ## How it works
@@ -59,14 +62,32 @@ of an earlier game, showing a placeholder like "Winner QF1" until it's decided.
 Standings sort by wins, then point differential, then points for, then name — the same
 order the bracket seeds from.
 
-### Admin
+### Roles and sign-in
 
-Tap the **PLAYER** pill in the header and enter the PIN (`8888`) to switch to **ADMIN**.
+Tap the pill in the header and enter a PIN. There are three roles:
+
+| Role | Can do |
+| --- | --- |
+| **PLAYER** (default) | View everything. No PIN needed. |
+| **CAPTAIN** | Edit team names and rosters. |
+| **ADMIN** | Everything, plus scores, times, fields and reset. |
+
+The captain PIN is shared by all eight captains, so any captain can edit any team's
+name and roster — the audit trail, not the PIN, is what makes that safe. Scores are
+admin-only.
+
+**PINs are set as Netlify environment variables** (`ADMIN_PIN`, `CAPTAIN_PIN`) and are
+checked server-side, so they are never shipped to the browser. Every write is
+re-authorised on the server: hiding a button in the UI is not what enforces permissions.
+
+A signed-in device remembers its PIN, and re-checks it on reload so a scorer does not
+silently drop to read-only after a refresh. Tap the pill again to sign out.
+
 Admins can:
 
 - tap any game whose teams are known to set the score, and override its time or field
 - rename a team from its card on the Teams tab
-- **edit that team's roster** — expand a team and add players inline: jersey number,
+- **edit that team's roster** (captains too) — expand a team and add players inline: jersey number,
   name, gender (M/F) and a captain toggle, with a row of ✕ buttons to remove. Each row
   saves as you type, and the summary line under the roster shows the count and gender
   split, which is what the 3:2 ratio rule is checked against. Any number of captains is
@@ -79,28 +100,56 @@ players see "Roster not posted yet" on that team's card.
 
 Everything else is read-only.
 
-Change the PIN, or start a device in admin mode, in `src/config.ts`.
+### Data — shared across devices
 
-### Data
+State lives on the server (Netlify Blobs) and is shared by everyone: a score entered on
+the organiser's phone shows up on every other device within about 20 seconds.
 
-Scores, schedule overrides, custom team names and rosters persist to `localStorage`
-under `wukong-jwc-v1`. **This is per-device**: scores and rosters an admin enters on
-their phone are not visible on anyone else's. Schedule overrides saved under an earlier version of the
-schedule are migrated forward on load (`src/lib/storage.ts`).
+**Local-first.** The app renders from a local cache and queues edits in `localStorage`,
+so it keeps working on a field with no signal. The header badge shows the state:
+
+| Badge | Meaning |
+| --- | --- |
+| **Synced** | Everything is on the server. |
+| **Saving…** | Edits are in flight; the number is how many are queued. |
+| **Offline** | No connection. Edits are held locally and sent automatically when signal returns. |
+
+Reads poll every 20 seconds while the tab is visible, and stop when it is hidden.
+
+**Concurrency.** Netlify Blobs is last-write-wins with no compare-and-swap, so each
+entity (one score, one roster, one team name) is stored under its own key. Two people
+editing different things can never clobber each other. Two people editing the *same*
+roster is genuinely last-write-wins — the later save replaces the earlier one.
+
+**Audit trail.** Every change records who (by role), when, and what, capped at the most
+recent 200 entries, exposed on the state endpoint. If a score is wrong, you can see when
+it changed. Under a write race a single audit line can be dropped; a score never is.
+
+## API
+
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/api/state` | `GET` | Current tournament state. Public. |
+| `/api/state` | `POST` | Apply one patch: `{pin, patch}`. Validated and authorised server-side. |
+| `/api/auth` | `POST` | Exchange `{pin}` for a role, so the UI can label the pill. |
 
 ## Layout
 
 ```
 src/
-  config.ts            admin PIN, event details, Chinese-accent toggle
-  data/                teams (art, lore, bonds, rosters), games, rules
+  config.ts            event details and the Chinese-accent toggle (no secrets)
+  data/                teams (art, lore, bonds), rules; games re-exports the shared schedule
   lib/
-    storage.ts         localStorage load/save + schedule migration
+    sync.ts            fetch/push, offline cache and the pending-edit queue
     tournament.ts      standings, seeding, slot resolution
-    useTournament.ts   persisted state + derived tables
+    useTournament.ts   shared state, roles, sync status
   components/          SealBadge, Dialog, PinDialog, ScoreDialog, GameCard, SectionHeading
   tabs/                GamesTab, TeamsTab, FieldsTab, RulesTab, StoryTab
   styles/              design-system tokens (colors, fonts, typography, spacing, effects)
+shared/                types, schedule and state logic used by BOTH the app and the server
+  state.ts             patch validation, role permissions, apply — the security boundary
+netlify/functions/     state.ts (read/write) and auth.ts (PIN → role)
+scripts/mock-api.ts    in-memory API for local dev and the smoke suite (never shipped)
 public/assets/art/     character artwork
 project/               original Claude Design handoff bundle (design source of truth)
 ```
@@ -110,13 +159,37 @@ seal-red accent plus gold, brush display type (Kalam), calligraphy accents (Ma S
 and Alegreya Sans for body copy. The fonts load from Google Fonts; without a connection
 they fall back to generic cursive/sans-serif and the layout is unaffected.
 
+## Deploying
+
+Connect the repo in Netlify (*Add new project → Import an existing project*).
+`netlify.toml` already sets the build command, publish directory and Node version, so
+there is nothing to configure — **except the two PINs**, which must be set before anyone
+can edit anything:
+
+*Site configuration → Environment variables →* add
+
+| Key | Value |
+| --- | --- |
+| `ADMIN_PIN` | the organiser's PIN |
+| `CAPTAIN_PIN` | the PIN shared with the eight captains |
+
+Without them every PIN is rejected and the app stays read-only for everyone — which is
+the safe failure, but it does mean scores cannot be entered until they are set. Changing
+a PIN takes effect on the next deploy.
+
+Production uses a global Blobs store; previews and branch deploys get their own
+deploy-scoped store, so testing never touches live tournament data.
+
 ## Notes
 
-- **Rosters start empty** and are filled in from the app by an admin (see above). If you
-  would rather ship them in the build, add a `roster` field back to `src/data/teams.ts`
-  and seed `rosters` in `src/lib/storage.ts`.
+- **Rosters start empty** and are filled in from the app by a captain or admin. They are
+  stored on the server, so each team only has to enter theirs once.
 - **Team names are defaults.** Monkey Kings, Sky Marshals, River Guards, Holy Monk, White
-  Dragons, Golden Palms, White Bone Spirit, Moon Fairy. Teams can rename themselves in
-  admin mode, or change the `en` field in `src/data/teams.ts`.
+  Dragons, Golden Palms, White Bone Spirit, Moon Fairy. Captains can rename their own
+  team in the app, or change the `en` field in `src/data/teams.ts`.
+- **PINs are a speed bump, not security.** They are short, shared, and not rate-limited.
+  Anyone who has a PIN can edit what that role allows, and a determined person could
+  guess one. That is an accepted trade for a club tournament — the audit trail is what
+  lets you spot and undo a bad edit. Do not reuse these PINs anywhere that matters.
 - The design this was built from lives in `project/` — `Journey West Cup App.dc.html`
   plus the design-system bundle. `chats/` has the conversation it came out of.
