@@ -1,25 +1,113 @@
-# CODING AGENTS: READ THIS FIRST
+# Journey West Cup 西遊盃
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Mobile tournament app for the Journey to the West Cup — a one-evening 5v5 speedpoint
+ultimate frisbee tournament at L'Amoreaux Sports Complex, September 5 2026.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Eight teams, each one a character from *Journey to the West* (西遊記): schedule and live
+scores, standings, a self-seeding playoff bracket, rosters, field layout, the house rules
+and the story behind every team.
 
-## What you should do — IMPORTANT
+## Running it
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```bash
+npm install
+npm run dev        # dev server
+npm run build      # production build into dist/
+npm run preview    # serve the production build on :4173
+```
 
-**Read `project/Journey West Cup App.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+`dist/` is a plain static site — drop it on any static host. `vite.config.ts` sets
+`base: './'` so it also works from a subpath.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+### Checks
 
-## About the design files
+```bash
+npm run typecheck
+npm run smoke                 # end-to-end smoke test against a running preview
+```
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+`npm run smoke` drives a real browser through the whole app: every tab, the admin PIN
+gate, entering all 12 pool scores, bracket seeding, persistence across reload, and the
+hidden reset. Start `npm run preview` first. If Playwright's own Chromium isn't
+installed, point it at one with `CHROMIUM_PATH=/path/to/chrome npm run smoke`.
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+## How it works
 
-## Bundle contents
+### Tabs
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Ultimate Frisbee Tournament App` project files (HTML prototypes, assets, components)
+| Tab | What's on it |
+| --- | --- |
+| **Games** 賽 | Pool round (6:20 / 7:00 / 7:40), live standings for both pools, and the full playoff bracket |
+| **Teams** 隊 | The eight banners with art, record and roster; admins can rename a team here |
+| **Fields** 場 | The soccer pitch split into F1–F4 left to right, plus parking and washroom info |
+| **Rules** 規 | Tournament setup, the house rules, speedpoint basics, Spirit of the Game |
+| **Story** 書 | *Journey to the West* intro and all eight legends, each expanding to full lore and their bonds to the other seven |
+
+### Schedule
+
+8 teams in two pools of four, four fields running at once, 30-minute cap per game.
+
+- **6:20 / 7:00 / 7:40** — pool round robin, 12 games
+- **8:30** — quarterfinals, seeded automatically once every pool game has a final score
+- **9:10** — semifinals (F1/F2) and consolation semis for the quarterfinal runners-up (F3/F4)
+- **10:00** — championship final (F1), 3rd place (F2), 5th place (F3), 7th place (F4)
+
+Every team plays through to the last round. The bracket fills itself in: pool seeds
+resolve once a pool is complete, and each later slot chains off the winner or runner-up
+of an earlier game, showing a placeholder like "Winner QF1" until it's decided.
+
+Standings sort by wins, then point differential, then points for, then name — the same
+order the bracket seeds from.
+
+### Admin
+
+Tap the **PLAYER** pill in the header and enter the PIN (`8888`) to switch to **ADMIN**.
+Admins can:
+
+- tap any game whose teams are known to set the score, and override its time or field
+- rename a team from its card on the Teams tab
+- reset everything — hidden behind the faint `· 終 ·` mark at the bottom of the Story
+  tab, and it asks for the PIN again before wiping anything
+
+Everything else is read-only.
+
+Change the PIN, or start a device in admin mode, in `src/config.ts`.
+
+### Data
+
+Scores, schedule overrides and custom team names persist to `localStorage` under
+`wukong-jwc-v1`. **This is per-device**: scores an admin enters on their phone are not
+visible on anyone else's. Schedule overrides saved under an earlier version of the
+schedule are migrated forward on load (`src/lib/storage.ts`).
+
+## Layout
+
+```
+src/
+  config.ts            admin PIN, event details, Chinese-accent toggle
+  data/                teams (art, lore, bonds, rosters), games, rules
+  lib/
+    storage.ts         localStorage load/save + schedule migration
+    tournament.ts      standings, seeding, slot resolution
+    useTournament.ts   persisted state + derived tables
+  components/          SealBadge, Dialog, PinDialog, ScoreDialog, GameCard, SectionHeading
+  tabs/                GamesTab, TeamsTab, FieldsTab, RulesTab, StoryTab
+  styles/              design-system tokens (colors, fonts, typography, spacing, effects)
+public/assets/art/     character artwork
+project/               original Claude Design handoff bundle (design source of truth)
+```
+
+Styling follows the Wukong Ultimate design system: warm paper grounds, ink-wash art, one
+seal-red accent plus gold, brush display type (Kalam), calligraphy accents (Ma Shan Zheng)
+and Alegreya Sans for body copy. The fonts load from Google Fonts; without a connection
+they fall back to generic cursive/sans-serif and the layout is unaffected.
+
+## Notes
+
+- **Rosters are placeholders.** The player names in `src/data/teams.ts` are invented —
+  replace them with the real ones.
+- **Team names are defaults.** Monkey Kings, Sky Marshals, River Guards, Holy Monk, White
+  Dragons, Golden Palms, White Bone Spirit, Moon Fairy. Teams can rename themselves in
+  admin mode, or change the `en` field in `src/data/teams.ts`.
+- The design this was built from lives in `project/` — `Journey West Cup App.dc.html`
+  plus the design-system bundle. `chats/` has the conversation it came out of.
