@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: no client-side router, but keep deep links on the shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Character art and the hashed JS/CSS bundles are content-addressed or stable.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
