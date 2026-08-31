@@ -1,4 +1,5 @@
 import { GAME_BY_ID } from '../data/games';
+import type { Player, TeamId } from '../data/teams';
 
 const KEY = 'wukong-jwc-v1';
 
@@ -16,9 +17,11 @@ export interface Saved {
   scores: Record<string, Score>;
   sched: Record<string, SchedOverride>;
   teamNames: Record<string, string>;
+  /** Rosters are entered by admins in the app; there are no defaults. */
+  rosters: Partial<Record<TeamId, Player[]>>;
 }
 
-const EMPTY: Saved = { scores: {}, sched: {}, teamNames: {} };
+const EMPTY: Saved = { scores: {}, sched: {}, teamNames: {}, rosters: {} };
 
 /**
  * Schedule overrides saved under older versions of the schedule are remapped to
@@ -66,7 +69,19 @@ export function load(): Saved {
     sched[id] = { time: time || game.time, field: field || game.field };
   }
 
-  return { ...EMPTY, scores, sched, teamNames };
+  const rosters: Partial<Record<TeamId, Player[]>> = {};
+  for (const [id, list] of Object.entries(raw.rosters || {})) {
+    if (!Array.isArray(list)) continue;
+    // Coerce each entry — this is hand-entered data read back from storage.
+    rosters[id as TeamId] = list.map((p) => ({
+      name: typeof p?.name === 'string' ? p.name : '',
+      gender: p?.gender === 'F' ? 'F' : 'M',
+      num: Number.isFinite(p?.num) ? Number(p.num) : 0,
+      captain: !!p?.captain,
+    }));
+  }
+
+  return { ...EMPTY, scores, sched, teamNames, rosters };
 }
 
 export function save(state: Saved): void {
@@ -77,6 +92,7 @@ export function save(state: Saved): void {
         scores: state.scores,
         sched: state.sched,
         teamNames: state.teamNames,
+        rosters: state.rosters,
       }),
     );
   } catch {

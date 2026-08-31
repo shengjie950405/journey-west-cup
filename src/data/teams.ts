@@ -45,15 +45,7 @@ export interface Team {
   lore1: string;
   lore2: string;
   rel: Relation[];
-  roster: Player[];
 }
-
-const p = (name: string, gender: Gender, num: number, captain = false): Player => ({
-  name,
-  gender,
-  num,
-  captain,
-});
 
 export const TEAMS: Team[] = [
   {
@@ -79,15 +71,6 @@ export const TEAMS: Team[] = [
       ['rulai', 'the palm he never escaped. Respect, grudgingly.'],
       ['meiyao', 'his sworn enemy; the one gaze that pierces every disguise.'],
     ],
-    roster: [
-      p('Kai Zhang', 'M', 1, true),
-      p('Leo Wen', 'M', 7),
-      p('Marcus Lam', 'M', 10),
-      p('Devin Choi', 'M', 23),
-      p('Amy Xu', 'F', 4),
-      p('Tina Guo', 'F', 11),
-      p('Sara Lin', 'F', 88),
-    ],
   },
   {
     id: 'yuanshuai',
@@ -110,15 +93,6 @@ export const TEAMS: Team[] = [
       ['nichang', 'the flirtation that cost him heaven. It is still awkward.'],
       ['dasheng', 'first brother, chief rival, best friend.'],
       ['shengseng', 'his master, whose patience he tests daily.'],
-    ],
-    roster: [
-      p('Ben Tian', 'M', 8, true),
-      p('Oscar Peng', 'M', 32),
-      p('Ray Zhong', 'M', 5),
-      p('Tom Hu', 'M', 44),
-      p('Jia Chen', 'F', 9),
-      p('Mona Li', 'F', 21),
-      p('Eva Song', 'F', 3),
     ],
   },
   {
@@ -143,15 +117,6 @@ export const TEAMS: Team[] = [
       ['yuanshuai', 'fellow fallen general, opposite temperament.'],
       ['rulai', 'named him arhat when the journey was done.'],
     ],
-    roster: [
-      p('Stone Sha', 'M', 26, true),
-      p('Gary Heng', 'M', 11),
-      p('Bruce Kang', 'M', 58),
-      p('Neil Cang', 'M', 40),
-      p('Fiona Qin', 'F', 14),
-      p('Hana Mo', 'F', 33),
-      p('Ella Wei', 'F', 7),
-    ],
   },
   {
     id: 'shengseng',
@@ -174,15 +139,6 @@ export const TEAMS: Team[] = [
       ['dasheng', 'his hot-headed first disciple, held by the golden band.'],
       ['meiyao', 'she has tried to eat him three times.'],
       ['aolie', 'his white horse — secretly a prince.'],
-    ],
-    roster: [
-      p('Sam Tang', 'M', 14, true),
-      p('Jerry Kwok', 'M', 19),
-      p('Chris Mo', 'M', 55),
-      p('Max Luo', 'M', 42),
-      p('Iris Shen', 'F', 8),
-      p('Joy Zhu', 'F', 16),
-      p('Vivian He', 'F', 24),
     ],
   },
   {
@@ -207,15 +163,6 @@ export const TEAMS: Team[] = [
       ['dasheng', 'big brother in arms, who wakes the dragon in him.'],
       ['rulai', 'the mercy that spared his life.'],
     ],
-    roster: [
-      p('Alex Ao', 'M', 25, true),
-      p('Ryan Long', 'M', 4),
-      p('Felix Hai', 'M', 38),
-      p('Sean Bo', 'M', 63),
-      p('Zoe Jiang', 'F', 10),
-      p('Kelly Duan', 'F', 28),
-      p('May Xiong', 'F', 5),
-    ],
   },
   {
     id: 'rulai',
@@ -238,15 +185,6 @@ export const TEAMS: Team[] = [
       ['dasheng', 'pinned him for 500 years — then pardoned him.'],
       ['shengseng', 'the pilgrimage runs to his doorstep.'],
       ['luohan', 'rewarded his long penance with arhat-hood.'],
-    ],
-    roster: [
-      p('Victor Shi', 'M', 18, true),
-      p('Alan Du', 'M', 2),
-      p('Ken Bai', 'M', 66),
-      p('Paul Jin', 'M', 30),
-      p('Grace Yao', 'F', 12),
-      p('Lily Fang', 'F', 27),
-      p('Nina Wu', 'F', 6),
     ],
   },
   {
@@ -271,15 +209,6 @@ export const TEAMS: Team[] = [
       ['shengseng', 'her prize — immortality in a single bite, they say.'],
       ['nichang', 'mirror opposites in the same moonlight.'],
     ],
-    roster: [
-      p('Mia Bo', 'F', 17, true),
-      p('Luna Xie', 'F', 31),
-      p('Coco Deng', 'F', 9),
-      p('Anna Pan', 'F', 22),
-      p('Eric Gu', 'M', 45),
-      p('Hank Yu', 'M', 3),
-      p('Owen Zou', 'M', 12),
-    ],
   },
   {
     id: 'nichang',
@@ -301,15 +230,6 @@ export const TEAMS: Team[] = [
     rel: [
       ['yuanshuai', 'the marshal who toasted her once — and fell from heaven for it. Still awkward.'],
       ['meiyao', 'mirror opposites caught in the same moonlight.'],
-    ],
-    roster: [
-      p('Cindy Ni', 'F', 13, true),
-      p('Rita Chang', 'F', 20),
-      p('Wendy Cao', 'F', 35),
-      p('Elaine Ma', 'F', 7),
-      p('Jack Feng', 'M', 29),
-      p('Ivan Su', 'M', 15),
-      p('Dan Qiu', 'M', 50),
     ],
   },
 ];

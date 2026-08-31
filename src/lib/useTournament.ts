@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { TeamId } from '../data/teams';
+import type { Player, TeamId } from '../data/teams';
 import { team } from '../data/teams';
 import {
   makeResolver,
@@ -55,10 +55,24 @@ export function useTournament() {
     [],
   );
 
+  /** Replaces one team's roster. Rosters are admin-entered; there are no defaults. */
+  const setRoster = useCallback((id: TeamId, players: Player[]) => {
+    setData((prev) => {
+      const next = { ...prev, rosters: { ...prev.rosters, [id]: players } };
+      save(next);
+      return next;
+    });
+  }, []);
+
   const resetAll = useCallback(() => {
-    setData({ scores: {}, sched: {}, teamNames: {} });
+    setData({ scores: {}, sched: {}, teamNames: {}, rosters: {} });
     clear();
   }, []);
+
+  const roster = useCallback(
+    (id: TeamId): Player[] => data.rosters[id] || [],
+    [data.rosters],
+  );
 
   /** The team's cheerable name — a custom one if set, else the default. */
   const teamName = useCallback(
@@ -85,6 +99,8 @@ export function useTournament() {
     doneB,
     poolsDone: doneA && doneB,
     resolve,
+    roster,
+    setRoster,
     setScore,
     clearScore,
     renameTeam,

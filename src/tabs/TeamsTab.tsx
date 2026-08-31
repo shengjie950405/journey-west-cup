@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CONFIG } from '../config';
 import { SectionHeading } from '../components/SectionHeading';
-import { ORDERED_TEAMS, type TeamId } from '../data/teams';
+import { ORDERED_TEAMS, type Gender, type Player, type TeamId } from '../data/teams';
 import { recordOf } from '../lib/tournament';
 import type { Tournament } from '../lib/useTournament';
 
@@ -135,54 +135,12 @@ export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
                     onSave={(name) => t.renameTeam(tm.id, name)}
                   />
                 )}
-                {tm.roster.map((p) => (
-                  <div
-                    key={`${p.num}-${p.name}`}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10 }}
-                  >
-                    <span
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: 6,
-                        background: tm.color,
-                        color: 'var(--ink-1)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 11.5,
-                        fontWeight: 800,
-                        flex: 'none',
-                        border: '1px solid rgba(46,49,56,.15)',
-                      }}
-                    >
-                      {p.num}
-                    </span>
-                    <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>
-                      {p.name}
-                      {p.captain && (
-                        <span style={{ color: 'var(--gold-deep)', fontWeight: 800 }}>
-                          {' '}
-                          · C
-                        </span>
-                      )}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 10.5,
-                        fontWeight: 800,
-                        letterSpacing: '.06em',
-                        color: p.gender === 'F' ? 'var(--seal-red-deep)' : '#2c3f6b',
-                        background: p.gender === 'F' ? '#f3e2df' : '#dde4f2',
-                        borderRadius: 999,
-                        padding: '2px 8px',
-                        flex: 'none',
-                      }}
-                    >
-                      {p.gender}
-                    </span>
-                  </div>
-                ))}
+                <RosterSection
+                  color={tm.color}
+                  admin={admin}
+                  roster={t.roster(tm.id)}
+                  onChange={(players) => t.setRoster(tm.id, players)}
+                />
               </div>
             )}
 
@@ -190,6 +148,259 @@ export function TeamsTab({ t, admin, openTeam, setOpenTeam }: Props) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+const GENDER_FG: Record<Gender, string> = { F: 'var(--seal-red-deep)', M: '#2c3f6b' };
+const GENDER_BG: Record<Gender, string> = { F: '#f3e2df', M: '#dde4f2' };
+
+/**
+ * A team's roster. Players see a read-only list; admins get inline editing —
+ * number, name, gender and captain — plus add and remove.
+ */
+function RosterSection({
+  color,
+  admin,
+  roster,
+  onChange,
+}: {
+  color: string;
+  admin: boolean;
+  roster: Player[];
+  onChange: (players: Player[]) => void;
+}) {
+  const patch = (i: number, next: Partial<Player>) =>
+    onChange(roster.map((p, j) => (j === i ? { ...p, ...next } : p)));
+  const remove = (i: number) => onChange(roster.filter((_, j) => j !== i));
+  const add = () =>
+    onChange([...roster, { name: '', gender: 'M', num: 0, captain: false }]);
+
+  const women = roster.filter((p) => p.gender === 'F').length;
+  const men = roster.length - women;
+
+  if (!admin) {
+    if (!roster.length) {
+      return (
+        <div style={{ fontSize: 13, color: 'var(--text-faint)', padding: '2px 0' }}>
+          Roster not posted yet.
+        </div>
+      );
+    }
+    return (
+      <>
+        {roster.map((p, i) => (
+          <div
+            key={i}
+            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+          >
+            <span
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 6,
+                background: color,
+                color: 'var(--ink-1)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11.5,
+                fontWeight: 800,
+                flex: 'none',
+                border: '1px solid rgba(46,49,56,.15)',
+              }}
+            >
+              {p.num || '–'}
+            </span>
+            <span style={{ flex: 1, fontSize: 14, fontWeight: 600, minWidth: 0 }}>
+              {p.name || <span style={{ color: 'var(--text-faint)' }}>Unnamed</span>}
+              {p.captain && (
+                <span style={{ color: 'var(--gold-deep)', fontWeight: 800 }}> · C</span>
+              )}
+            </span>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 800,
+                letterSpacing: '.06em',
+                color: GENDER_FG[p.gender],
+                background: GENDER_BG[p.gender],
+                borderRadius: 999,
+                padding: '2px 8px',
+                flex: 'none',
+              }}
+            >
+              {p.gender}
+            </span>
+          </div>
+        ))}
+        <RosterSummary count={roster.length} men={men} women={women} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      {roster.map((p, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <input
+            value={p.num || ''}
+            onChange={(e) => {
+              const n = parseInt(e.target.value.replace(/\D/g, ''), 10);
+              patch(i, { num: isNaN(n) ? 0 : Math.min(99, n) });
+            }}
+            inputMode="numeric"
+            placeholder="#"
+            aria-label="Jersey number"
+            style={{
+              width: 38,
+              flex: 'none',
+              textAlign: 'center',
+              padding: '6px 2px',
+              border: '1px solid var(--border-soft)',
+              borderRadius: 7,
+              background: color,
+              color: 'var(--ink-1)',
+              fontSize: 12.5,
+              fontWeight: 800,
+              fontFamily: 'var(--font-body)',
+              outlineColor: 'var(--seal-red)',
+              minWidth: 0,
+            }}
+          />
+          <input
+            value={p.name}
+            onChange={(e) => patch(i, { name: e.target.value })}
+            placeholder="Player name"
+            aria-label="Player name"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              padding: '6px 9px',
+              border: '1px solid var(--border-soft)',
+              borderRadius: 7,
+              background: 'var(--card)',
+              color: 'var(--text-body)',
+              fontSize: 13.5,
+              fontFamily: 'var(--font-body)',
+              outlineColor: 'var(--seal-red)',
+            }}
+          />
+          <div style={{ display: 'flex', flex: 'none' }}>
+            {(['M', 'F'] as Gender[]).map((g, gi) => {
+              const on = p.gender === g;
+              return (
+                <button
+                  key={g}
+                  onClick={() => patch(i, { gender: g })}
+                  aria-pressed={on}
+                  aria-label={g === 'M' ? 'Male' : 'Female'}
+                  style={{
+                    width: 26,
+                    padding: '6px 0',
+                    border: `1px solid ${on ? 'transparent' : 'var(--border-soft)'}`,
+                    borderRadius: gi === 0 ? '7px 0 0 7px' : '0 7px 7px 0',
+                    marginLeft: gi === 1 ? -1 : 0,
+                    background: on ? GENDER_BG[g] : 'var(--card)',
+                    color: on ? GENDER_FG[g] : 'var(--text-faint)',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  {g}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => patch(i, { captain: !p.captain })}
+            aria-pressed={p.captain}
+            aria-label="Captain"
+            title="Captain"
+            style={{
+              width: 26,
+              flex: 'none',
+              padding: '6px 0',
+              border: `1px solid ${p.captain ? 'transparent' : 'var(--border-soft)'}`,
+              borderRadius: 7,
+              background: p.captain ? 'var(--gold)' : 'var(--card)',
+              color: p.captain ? '#fff' : 'var(--text-faint)',
+              fontSize: 11,
+              fontWeight: 800,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            C
+          </button>
+          <button
+            onClick={() => remove(i)}
+            aria-label={`Remove ${p.name || 'player'}`}
+            style={{
+              width: 24,
+              flex: 'none',
+              padding: '6px 0',
+              border: 'none',
+              background: 'none',
+              color: 'var(--text-faint)',
+              fontSize: 14,
+              cursor: 'pointer',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+
+      <button
+        onClick={add}
+        style={{
+          alignSelf: 'flex-start',
+          marginTop: 3,
+          background: 'transparent',
+          color: 'var(--seal-red)',
+          border: '1px dashed var(--seal-red)',
+          borderRadius: 8,
+          padding: '6px 12px',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 12.5,
+          cursor: 'pointer',
+        }}
+      >
+        + Add player
+      </button>
+
+      {roster.length > 0 && (
+        <RosterSummary count={roster.length} men={men} women={women} />
+      )}
+    </>
+  );
+}
+
+/** Line count and gender split — the numbers behind the 3:2 ratio rule. */
+function RosterSummary({
+  count,
+  men,
+  women,
+}: {
+  count: number;
+  men: number;
+  women: number;
+}) {
+  return (
+    <div
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '.05em',
+        color: 'var(--text-faint)',
+        marginTop: 2,
+      }}
+    >
+      {count} player{count === 1 ? '' : 's'} · {men}M / {women}F
     </div>
   );
 }

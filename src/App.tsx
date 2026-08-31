@@ -215,8 +215,8 @@ export function App() {
         title="Reset tournament"
         prompt={
           <>
-            This clears <b>all scores, schedule changes and team names</b> back to the
-            defaults. Re-enter the admin PIN to confirm.
+            This clears <b>all scores, schedule changes, team names and rosters</b> back
+            to the defaults. Re-enter the admin PIN to confirm.
           </>
         }
         errorText="Wrong PIN — nothing was reset."

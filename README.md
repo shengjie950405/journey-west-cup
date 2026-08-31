@@ -38,7 +38,7 @@ installed, point it at one with `CHROMIUM_PATH=/path/to/chrome npm run smoke`.
 | Tab | What's on it |
 | --- | --- |
 | **Games** 賽 | Pool round (6:20 / 7:00 / 7:40), live standings for both pools, and the full playoff bracket |
-| **Teams** 隊 | The eight banners with art, record and roster; admins can rename a team here |
+| **Teams** 隊 | The eight banners with art, record and roster; admins rename teams and edit rosters here |
 | **Fields** 場 | The soccer pitch split into F1–F4 left to right, plus parking and washroom info |
 | **Rules** 規 | Tournament setup, the house rules, speedpoint basics, Spirit of the Game |
 | **Story** 書 | *Journey to the West* intro and all eight legends, each expanding to full lore and their bonds to the other seven |
@@ -66,8 +66,16 @@ Admins can:
 
 - tap any game whose teams are known to set the score, and override its time or field
 - rename a team from its card on the Teams tab
+- **edit that team's roster** — expand a team and add players inline: jersey number,
+  name, gender (M/F) and a captain toggle, with a row of ✕ buttons to remove. Each row
+  saves as you type, and the summary line under the roster shows the count and gender
+  split, which is what the 3:2 ratio rule is checked against. Any number of captains is
+  allowed, for teams with co-captains.
 - reset everything — hidden behind the faint `· 終 ·` mark at the bottom of the Story
   tab, and it asks for the PIN again before wiping anything
+
+Rosters ship **empty** — there is no seeded player data. Until an admin fills one in,
+players see "Roster not posted yet" on that team's card.
 
 Everything else is read-only.
 
@@ -75,9 +83,9 @@ Change the PIN, or start a device in admin mode, in `src/config.ts`.
 
 ### Data
 
-Scores, schedule overrides and custom team names persist to `localStorage` under
-`wukong-jwc-v1`. **This is per-device**: scores an admin enters on their phone are not
-visible on anyone else's. Schedule overrides saved under an earlier version of the
+Scores, schedule overrides, custom team names and rosters persist to `localStorage`
+under `wukong-jwc-v1`. **This is per-device**: scores and rosters an admin enters on
+their phone are not visible on anyone else's. Schedule overrides saved under an earlier version of the
 schedule are migrated forward on load (`src/lib/storage.ts`).
 
 ## Layout
@@ -104,8 +112,9 @@ they fall back to generic cursive/sans-serif and the layout is unaffected.
 
 ## Notes
 
-- **Rosters are placeholders.** The player names in `src/data/teams.ts` are invented —
-  replace them with the real ones.
+- **Rosters start empty** and are filled in from the app by an admin (see above). If you
+  would rather ship them in the build, add a `roster` field back to `src/data/teams.ts`
+  and seed `rosters` in `src/lib/storage.ts`.
 - **Team names are defaults.** Monkey Kings, Sky Marshals, River Guards, Holy Monk, White
   Dragons, Golden Palms, White Bone Spirit, Moon Fairy. Teams can rename themselves in
   admin mode, or change the `en` field in `src/data/teams.ts`.

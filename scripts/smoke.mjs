@@ -60,11 +60,12 @@ const idxs = order.map((n) => teamsText.indexOf(n));
 check('character order top-down', idxs.every((v, i) => v > -1 && (i === 0 || v > idxs[i - 1])), idxs.join(','));
 check('default English names', ['Monkey Kings', 'Sky Marshals', 'White Bone Spirit', 'Moon Fairy', 'Holy Monk'].every((n) => teamsText.includes(n)));
 
-// roster expands
+// roster expands — no seeded players, and no editing affordances for players
 await page.getByText('Monkey Kings').first().click();
 await page.waitForTimeout(80);
-check('roster expands', (await page.locator('body').innerText()).includes('Kai Zhang'));
+check('roster empty by default', (await page.locator('body').innerText()).includes('Roster not posted yet'));
 check('rename hidden for players', !(await page.getByRole('button', { name: 'Save name' }).count()));
+check('add player hidden for players', !(await page.getByRole('button', { name: '+ Add player' }).count()));
 
 // --- Admin sign-in: wrong PIN then right PIN
 await page.getByRole('button', { name: /PLAYER/ }).click();
@@ -78,6 +79,39 @@ await page.getByRole('button', { name: 'Unlock' }).click();
 await page.waitForTimeout(120);
 check('admin unlocked', await page.getByRole('button', { name: /ADMIN/ }).isVisible());
 check('rename visible for admin', (await page.getByRole('button', { name: 'Save name' }).count()) > 0);
+
+// --- Admin roster editing: add two players, edit them, remove one
+check('add player visible for admin', (await page.getByRole('button', { name: '+ Add player' }).count()) > 0);
+await page.getByRole('button', { name: '+ Add player' }).click();
+await page.waitForTimeout(80);
+await page.getByLabel('Player name').first().fill('Ada Wong');
+await page.getByLabel('Jersey number').first().fill('42');
+await page.getByRole('button', { name: 'Female' }).first().click();
+await page.getByRole('button', { name: 'Captain' }).first().click();
+await page.waitForTimeout(100);
+check('player fields accept input',
+  (await page.getByLabel('Player name').first().inputValue()) === 'Ada Wong' &&
+  (await page.getByLabel('Jersey number').first().inputValue()) === '42');
+check('gender toggle set to F', (await page.getByRole('button', { name: 'Female' }).first().getAttribute('aria-pressed')) === 'true');
+check('captain toggle set', (await page.getByRole('button', { name: 'Captain' }).first().getAttribute('aria-pressed')) === 'true');
+
+await page.getByRole('button', { name: '+ Add player' }).click();
+await page.waitForTimeout(80);
+await page.getByLabel('Player name').nth(1).fill('Bo Lin');
+await page.waitForTimeout(100);
+check('roster summary counts', (await page.locator('body').innerText()).includes('2 players · 1M / 1F'));
+
+// jersey number rejects non-digits and caps at 99
+await page.getByLabel('Jersey number').nth(1).fill('abc7x');
+await page.waitForTimeout(80);
+check('number strips non-digits', (await page.getByLabel('Jersey number').nth(1).inputValue()) === '7');
+await page.getByLabel('Jersey number').nth(1).fill('250');
+await page.waitForTimeout(80);
+check('number caps at 99', (await page.getByLabel('Jersey number').nth(1).inputValue()) === '99');
+
+await page.getByRole('button', { name: 'Remove Bo Lin' }).click();
+await page.waitForTimeout(100);
+check('player removed', (await page.locator('body').innerText()).includes('1 player · 0M / 1F'));
 
 // --- Rename a team, verify it propagates to the schedule
 await page.getByLabel('Team name').first().fill('Staff Twirlers');
@@ -115,6 +149,16 @@ const reloaded = await page.locator('body').innerText();
 check('scores persist across reload', reloaded.includes('Pool play complete'));
 check('team name persists across reload', reloaded.includes('Staff Twirlers'));
 
+// reload drops admin mode, so this also checks the read-only roster view
+await page.getByRole('button', { name: /Teams$/ }).click();
+await page.waitForTimeout(80);
+await page.getByText('Staff Twirlers').first().click();
+await page.waitForTimeout(100);
+const rosterView = await page.locator('body').innerText();
+check('roster persists across reload', rosterView.includes('Ada Wong'));
+check('captain mark shown to players', rosterView.includes('Ada Wong · C'));
+check('roster read-only for players', !(await page.getByLabel('Player name').count()));
+
 // --- Hidden reset behind · 終 · on the Story tab
 await page.getByRole('button', { name: /PLAYER/ }).click();
 await page.getByLabel('Admin PIN').fill('8888');
@@ -138,6 +182,13 @@ await page.waitForTimeout(100);
 const afterReset = await page.locator('body').innerText();
 check('reset clears scores', afterReset.includes('Playoffs seed automatically'));
 check('reset clears team names', !afterReset.includes('Staff Twirlers') && afterReset.includes('Monkey Kings'));
+await page.getByRole('button', { name: /Teams$/ }).click();
+await page.waitForTimeout(80);
+await page.getByText('Monkey Kings').first().click();
+await page.waitForTimeout(100);
+// still in admin mode here, so an empty roster shows the editor's add button
+const afterResetRoster = await page.locator('body').innerText();
+check('reset clears rosters', !afterResetRoster.includes('Ada Wong') && afterResetRoster.includes('+ Add player'));
 
 // --- Story expansion
 await page.getByRole('button', { name: /Story$/ }).click();
