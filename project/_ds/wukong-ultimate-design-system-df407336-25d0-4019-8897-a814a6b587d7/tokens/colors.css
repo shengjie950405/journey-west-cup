@@ -1,0 +1,24 @@
+:root{
+/* Ink & paper */
+--ink-1:#2e3138; --ink-2:#565b66; --ink-3:#8b909b; --ink-wash:#c9ccd2;
+--paper:#faf6ee; --paper-warm:#f6e9cd; --card:#fffdf8;
+/* Seal & metal */
+--seal-red:#b23c31; --seal-red-deep:#7a2230; --gold:#c9a45c; --gold-deep:#a37f3b;
+/* Character colorways (jersey grounds) */
+--way-celadon:#cde5dc; /* 霓裳 Nichang */
+--way-cream:#f6e9cd;   /* 大圣 Dasheng */
+--way-blush:#efdfe4;   /* 圣僧 Shengseng */
+--way-sky:#c9d6ec;     /* 敖烈 Aolie */
+--way-navy:#1c2750;    /* 元帅 Yuanshuai */
+--way-maroon:#4a1524;  /* 魅妖 Meiyao */
+--way-brown:#472a1c;   /* 如来 Rulai */
+--way-green:#1e4936;   /* 罗汉 Luohan */
+/* Semantic */
+--surface-page:var(--paper); --surface-card:var(--card); --surface-dark:var(--way-navy);
+--text-body:var(--ink-1); --text-muted:var(--ink-2); --text-faint:var(--ink-3);
+--text-on-dark:#eef1f8;
+--accent:var(--seal-red); --accent-hover:#9c3228; --accent-quiet:#f3e2df;
+--link:var(--seal-red-deep); --link-hover:var(--seal-red);
+--border-soft:#e6dfd0; --border-ink:var(--ink-1);
+--ok:#3f7a5a; --warn:#a37f3b; --danger:#8c2b21;
+}

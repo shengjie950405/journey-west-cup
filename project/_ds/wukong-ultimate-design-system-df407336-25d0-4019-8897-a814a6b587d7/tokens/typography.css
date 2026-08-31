@@ -1,0 +1,11 @@
+:root{
+--font-display:'Kalam',cursive;            /* brush lettering (Latin) */
+--font-cn:'Ma Shan Zheng','LXGW WenKai TC',cursive;         /* calligraphy accents (TC fallback for traditional glyphs) */
+--font-body:'Alegreya Sans',sans-serif;
+--text-xs:13px; --text-sm:15px; --text-md:17px; --text-lg:20px;
+--text-xl:26px; --text-2xl:34px; --text-3xl:46px; --text-4xl:64px;
+--leading-tight:1.1; --leading-body:1.55;
+--track-wide:0.06em;
+}
+body{font-family:var(--font-body);color:var(--text-body)}
+a{color:var(--link)}a:hover{color:var(--link-hover)}

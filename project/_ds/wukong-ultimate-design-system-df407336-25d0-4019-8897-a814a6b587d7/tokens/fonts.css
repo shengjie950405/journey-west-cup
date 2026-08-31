@@ -1,0 +1,5 @@
+/* Substitutes: no font binaries were provided. Nearest Google Fonts matches:
+   - Latin brush display (jersey lettering) -> Kalam
+   - Chinese calligraphy accents -> Ma Shan Zheng
+   - Body -> Alegreya Sans (humanist, pairs with brush forms) */
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Ma+Shan+Zheng&family=LXGW+WenKai+TC&family=Alegreya+Sans:wght@400;500;700;800&display=swap');

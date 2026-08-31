@@ -1,0 +1,5 @@
+:root{
+--sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px; --sp-9:96px;
+--radius-sm:4px; --radius-md:8px; --radius-lg:14px; --radius-seal:10px; --radius-pill:999px;
+--container:1120px;
+}

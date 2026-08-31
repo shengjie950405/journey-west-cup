@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/tokens/colors.css">
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/tokens/typography.css">
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/tokens/effects.css">
+<link rel="stylesheet" href="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/styles.css">
+<script src="_ds/wukong-ultimate-design-system-df407336-25d0-4019-8897-a814a6b587d7/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#e7e1d3}
+body{font-family:var(--font-body);color:var(--text-body)}
+a{color:var(--seal-red-deep)}a:hover{color:var(--seal-red)}
+*{-webkit-tap-highlight-color:transparent}
+.jwc-scroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="max-width:430px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--paper);box-shadow:0 0 40px rgba(46,49,56,.18);overflow:hidden">
+
+  <div style="background:var(--way-navy);color:var(--text-on-dark);padding:14px 16px 12px;display:flex;align-items:center;gap:11px;flex:none">
+    <x-import component-from-global-scope="WukongUltimateDesignSystem_df4073.SealBadge" glyph="悟" size="{{ sealSize }}" hint-size="36px,36px"></x-import>
+    <div style="flex:1;min-width:0">
+      <div style="font-family:var(--font-display);font-size:19px;line-height:1.15;font-weight:700">Journey West Cup <span style="font-family:var(--font-cn);font-weight:400;color:var(--gold)">{{ cnTitle }}</span></div>
+      <div style="font-size:11.5px;color:rgba(238,241,248,.65);letter-spacing:.03em">Sept 5, 2026 · 6–11 PM · L'Amoreaux Sports Complex</div>
+    </div>
+    <button onClick="{{ onAdminTap }}" style="flex:none;display:flex;align-items:center;gap:6px;border:1px solid {{ roleBorder }};background:{{ roleBg }};color:{{ roleFg }};border-radius:999px;padding:5px 11px;font-family:var(--font-body);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.04em">
+      <span style="width:7px;height:7px;border-radius:50%;background:{{ roleDot }}"></span>{{ roleLabel }}
+    </button>
+  </div>
+
+  <div class="jwc-scroll" style="flex:1;overflow-y:auto;scrollbar-width:none">
+
+    <sc-if value="{{ tabGames }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:14px 14px 26px;display:flex;flex-direction:column;gap:20px">
+        <div style="background:var(--accent-quiet);border:1px solid #e8cfc9;border-radius:10px;padding:10px 13px">
+          <div style="font-size:13px;font-weight:700;color:var(--seal-red-deep)">{{ seedBanner }}</div>
+          <sc-if value="{{ admin }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--seal-red-deep);opacity:.8;margin-top:2px">Admin: tap any game to enter or edit its result, time or field.</div></sc-if>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin:0 2px 10px">
+            <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnPool }}</span>
+            <span style="font-family:var(--font-display);font-size:19px;font-weight:700">Pool Round</span>
+            <span style="font-size:12px;color:var(--text-faint);margin-left:auto">30 min cap · 4 fields</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ poolSlots }}" as="slot" hint-placeholder-count="3">
+              <div>
+                <div style="font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--text-faint);margin:0 2px 6px;text-transform:uppercase">{{ slot.time }} — {{ slot.tag }}</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ slot.games }}" as="g" hint-placeholder-count="2">
+                    <div onClick="{{ g.onTap }}" style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:12px;box-shadow:var(--shadow-card);padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:{{ g.cursor }}">
+                      <div style="width:46px;flex:none;text-align:center">
+                        <div style="font-weight:800;font-size:13px">{{ g.time }}</div>
+                        <div style="font-size:10.5px;color:var(--text-faint);letter-spacing:.05em">{{ g.field }}</div>
+                        <div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--gold-deep);text-transform:uppercase">{{ g.tag }}</div>
+                      </div>
+                      <div style="width:1px;align-self:stretch;background:var(--border-soft);flex:none"></div>
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+                        <div style="display:flex;align-items:center;gap:7px">
+                          <span style="width:13px;height:13px;border-radius:4px;background:{{ g.hColor }};border:1px solid rgba(46,49,56,.18);flex:none"></span>
+                          <span style="font-family:var(--font-cn);font-size:14px;color:var(--text-muted);width:26px;flex:none">{{ g.hCn }}</span>
+                          <span style="flex:1;font-weight:700;font-size:14.5px;color:{{ g.hFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.hName }}</span>
+                          <span style="font-family:var(--font-display);font-size:19px;font-weight:700;color:{{ g.hsFg }}">{{ g.hs }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:7px">
+                          <span style="width:13px;height:13px;border-radius:4px;background:{{ g.aColor }};border:1px solid rgba(46,49,56,.18);flex:none"></span>
+                          <span style="font-family:var(--font-cn);font-size:14px;color:var(--text-muted);width:26px;flex:none">{{ g.aCn }}</span>
+                          <span style="flex:1;font-weight:700;font-size:14.5px;color:{{ g.aFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.aName }}</span>
+                          <span style="font-family:var(--font-display);font-size:19px;font-weight:700;color:{{ g.asFg }}">{{ g.as }}</span>
+                        </div>
+                      </div>
+                      <div style="width:34px;flex:none;text-align:right"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--seal-red)">{{ g.status }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin:0 2px 10px">
+            <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnStand }}</span>
+            <span style="font-family:var(--font-display);font-size:19px;font-weight:700">Standings</span>
+          </div>
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ standTables }}" as="tbl" hint-placeholder-count="2">
+              <div style="flex:1;min-width:0;background:var(--surface-card);border:1px solid var(--border-soft);border-radius:12px;box-shadow:var(--shadow-card);padding:10px 11px">
+                <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;margin-bottom:7px">{{ tbl.label }}</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <sc-for list="{{ tbl.rows }}" as="s" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="width:14px;font-size:11px;font-weight:800;color:var(--text-faint);flex:none">{{ s.rank }}</span>
+                      <span style="width:11px;height:11px;border-radius:3px;background:{{ s.color }};border:1px solid rgba(46,49,56,.18);flex:none"></span>
+                      <span style="flex:1;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span>
+                      <span style="font-size:11.5px;font-weight:700;color:var(--text-muted);flex:none">{{ s.rec }}</span>
+                      <span style="width:28px;text-align:right;font-size:11px;color:var(--text-faint);flex:none">{{ s.diff }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin:0 2px 10px">
+            <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnBracket }}</span>
+            <span style="font-family:var(--font-display);font-size:19px;font-weight:700">Playoffs</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ brSlots }}" as="slot" hint-placeholder-count="3">
+              <div>
+                <div style="font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--text-faint);margin:0 2px 6px;text-transform:uppercase">{{ slot.time }} — {{ slot.tag }}</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ slot.games }}" as="g" hint-placeholder-count="2">
+                    <div onClick="{{ g.onTap }}" style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:12px;box-shadow:var(--shadow-card);padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:{{ g.cursor }}">
+                      <div style="width:46px;flex:none;text-align:center">
+                        <div style="font-weight:800;font-size:13px">{{ g.time }}</div>
+                        <div style="font-size:10.5px;color:var(--text-faint);letter-spacing:.05em">{{ g.field }}</div>
+                        <div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--gold-deep);text-transform:uppercase">{{ g.tag }}</div>
+                      </div>
+                      <div style="width:1px;align-self:stretch;background:var(--border-soft);flex:none"></div>
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+                        <div style="display:flex;align-items:center;gap:7px">
+                          <span style="width:13px;height:13px;border-radius:4px;background:{{ g.hColor }};border:1px solid rgba(46,49,56,.18);flex:none"></span>
+                          <span style="font-family:var(--font-cn);font-size:14px;color:var(--text-muted);width:26px;flex:none">{{ g.hCn }}</span>
+                          <span style="flex:1;font-weight:700;font-size:14.5px;color:{{ g.hFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.hName }}</span>
+                          <span style="font-family:var(--font-display);font-size:19px;font-weight:700;color:{{ g.hsFg }}">{{ g.hs }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:7px">
+                          <span style="width:13px;height:13px;border-radius:4px;background:{{ g.aColor }};border:1px solid rgba(46,49,56,.18);flex:none"></span>
+                          <span style="font-family:var(--font-cn);font-size:14px;color:var(--text-muted);width:26px;flex:none">{{ g.aCn }}</span>
+                          <span style="flex:1;font-weight:700;font-size:14.5px;color:{{ g.aFg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.aName }}</span>
+                          <span style="font-family:var(--font-display);font-size:19px;font-weight:700;color:{{ g.asFg }}">{{ g.as }}</span>
+                        </div>
+                      </div>
+                      <div style="width:34px;flex:none;text-align:right"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--seal-red)">{{ g.status }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ tabTeams }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:14px 14px 26px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:8px;margin:0 2px 2px">
+          <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnTeams }}</span>
+          <span style="font-family:var(--font-display);font-size:19px;font-weight:700">The Eight Banners</span>
+          <span style="font-size:12px;color:var(--text-faint);margin-left:auto">tap a team for its roster</span>
+        </div>
+        <sc-for list="{{ teamCards }}" as="t" hint-placeholder-count="4">
+          <div style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:14px;box-shadow:var(--shadow-card);overflow:hidden">
+            <div onClick="{{ t.onTap }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;cursor:pointer">
+              <span style="width:52px;height:52px;border-radius:50%;flex:none;overflow:hidden;display:block;border:2px solid {{ t.color }};background:var(--paper-warm)"><span role="img" aria-label="{{ t.name }}" style="display:block;width:100%;height:100%;background-image:url('{{ t.artSrc }}');background-size:cover;background-position:50% 18%"></span></span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:baseline;gap:7px">
+                  <span style="font-family:var(--font-display);font-size:17px;font-weight:700">{{ t.teamName }}</span>
+                  <span style="font-family:var(--font-cn);font-size:17px;color:var(--seal-red)">{{ t.cn }}</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ t.charName }} — {{ t.title }} · Pool {{ t.pool }} · {{ t.rec }}</div>
+              </div>
+              <span style="font-size:13px;color:var(--text-faint);flex:none">{{ t.chev }}</span>
+            </div>
+            <sc-if value="{{ t.open }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid var(--border-soft);padding:10px 13px 12px;display:flex;flex-direction:column;gap:7px;background:var(--paper)">
+                <sc-if value="{{ t.canRename }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;align-items:center;margin-bottom:3px">
+                    <input value="{{ renameVal }}" onChange="{{ onRenameInput }}" placeholder="Team name" style="flex:1;min-width:0;padding:7px 10px;border:1px solid var(--border-soft);border-radius:8px;font-size:13.5px;font-family:var(--font-body);background:var(--card);color:var(--text-body);outline-color:var(--seal-red)">
+                    <button onClick="{{ t.onRenameSave }}" style="background:var(--seal-red);color:#fff;border:1px solid transparent;border-radius:8px;padding:7px 13px;font-family:var(--font-body);font-weight:700;font-size:12.5px;cursor:pointer;flex:none">Save name</button>
+                  </div>
+                </sc-if>
+                <sc-for list="{{ t.roster }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:26px;height:26px;border-radius:6px;background:{{ t.color }};color:var(--ink-1);display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;flex:none;border:1px solid rgba(46,49,56,.15)">{{ p.num }}</span>
+                    <span style="flex:1;font-size:14px;font-weight:600">{{ p.name }}<span style="color:var(--gold-deep);font-weight:800"> {{ p.cap }}</span></span>
+                    <span style="font-size:10.5px;font-weight:800;letter-spacing:.06em;color:{{ p.gFg }};background:{{ p.gBg }};border-radius:999px;padding:2px 8px;flex:none">{{ p.g }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <div style="height:5px;background:{{ t.color }}"></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ tabField }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:14px 14px 26px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;gap:8px;margin:0 2px">
+          <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnField }}</span>
+          <span style="font-family:var(--font-display);font-size:19px;font-weight:700">Field Layout</span>
+        </div>
+        <div style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px 15px">
+          <div style="font-size:13.5px;line-height:1.55;margin-bottom:12px">One full soccer field, split into four ultimate fields side by side. <b>F1 is the far left</b> as you face the field from the parking lot; <b>F4 is the far right</b>. Each field plays across the width of the pitch.</div>
+          <div style="background:var(--way-green);border-radius:10px;padding:12px;display:flex;gap:8px">
+            <sc-for list="{{ fieldStrips }}" as="f" hint-placeholder-count="4">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;border:1.5px solid rgba(238,241,248,.75);border-radius:5px;overflow:hidden">
+                <div style="height:34px;background:rgba(238,241,248,.18);border-bottom:1.5px dashed rgba(238,241,248,.75)"></div>
+                <div style="height:120px;display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-on-dark)">{{ f.label }}</span>
+                </div>
+                <div style="height:34px;background:rgba(238,241,248,.18);border-top:1.5px dashed rgba(238,241,248,.75)"></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:7px;padding:0 2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--text-faint)">◀ LEFT (F1)</span>
+            <span style="font-size:11px;color:var(--text-faint)">shaded bands = end zones</span>
+            <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--text-faint)">(F4) RIGHT ▶</span>
+          </div>
+        </div>
+        <div style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px 15px">
+          <div style="font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:9px">Getting There</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--seal-red);flex:none;margin-top:5px"></span>
+              <div style="font-size:13.5px;line-height:1.5"><b>Venue</b> — L'Amoreaux Sports Complex, 100 Silver Spring Blvd, Scarborough.</div>
+            </div>
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--gold);flex:none;margin-top:5px"></span>
+              <div style="font-size:13.5px;line-height:1.5"><b>Parking</b> — free on-site parking at the complex.</div>
+            </div>
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="width:8px;height:8px;border-radius:2px;background:var(--gold);flex:none;margin-top:5px"></span>
+              <div style="font-size:13.5px;line-height:1.5"><b>Washrooms</b> — public washrooms available at the complex.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ tabRules }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:14px 14px 26px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:var(--way-navy);color:var(--text-on-dark);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <span style="font-family:var(--font-cn);font-size:22px;color:var(--gold)">{{ cnRules }}</span>
+            <span style="font-family:var(--font-display);font-size:20px;font-weight:700">Tournament Setup</span>
+          </div>
+          <div style="font-size:13.5px;line-height:1.55;color:rgba(238,241,248,.85)">One evening, 6:00–11:00 PM · 8 teams · two pools of four · round robin, then quarters, semis and the final. Every game is a 30-minute running-clock cap on four fields.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+            <span style="font-size:11.5px;font-weight:700;background:rgba(238,241,248,.12);border-radius:999px;padding:3px 10px">5v5 Speedpoint</span>
+            <span style="font-size:11.5px;font-weight:700;background:rgba(238,241,248,.12);border-radius:999px;padding:3px 10px">Mixed 3:2</span>
+            <span style="font-size:11.5px;font-weight:700;background:rgba(238,241,248,.12);border-radius:999px;padding:3px 10px">Stall 8</span>
+            <span style="font-size:11.5px;font-weight:700;background:rgba(238,241,248,.12);border-radius:999px;padding:3px 10px">30 min cap</span>
+          </div>
+        </div>
+
+        <div style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px 15px">
+          <div style="font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:9px">House Rules <span style="font-family:var(--font-cn);color:var(--seal-red);font-size:16px">{{ cnHouse }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ houseRules }}" as="r" hint-placeholder-count="6">
+              <div style="display:flex;gap:9px;align-items:flex-start">
+                <span style="width:8px;height:8px;border-radius:2px;background:var(--seal-red);flex:none;margin-top:5px"></span>
+                <div style="font-size:13.5px;line-height:1.5"><b>{{ r.head }}</b> — {{ r.body }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:var(--surface-card);border:1px solid var(--border-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px 15px">
+          <div style="font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:9px">Speedpoint Basics</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ speedRules }}" as="r" hint-placeholder-count="6">
+              <div style="display:flex;gap:9px;align-items:flex-start">
+                <span style="width:8px;height:8px;border-radius:2px;background:var(--gold);flex:none;margin-top:5px"></span>
+                <div style="font-size:13.5px;line-height:1.5"><b>{{ r.head }}</b> — {{ r.body }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:var(--accent-quiet);border:1px solid #e8cfc9;border-radius:14px;padding:13px 15px">
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--seal-red-deep);margin-bottom:4px">Spirit of the Game <span style="font-family:var(--font-cn);font-size:15px">{{ cnSpirit }}</span></div>
+          <div style="font-size:13px;line-height:1.55;color:var(--seal-red-deep)">Ultimate is self-officiated. Players make their own calls, resolve disputes with respect, and if no agreement is reached the disc goes back. Win like the Great Sage — with style, not spite.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ tabStory }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:14px 14px 26px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:var(--way-navy);color:var(--text-on-dark);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden">
+          <div style="position:absolute;right:6px;top:2px;font-family:var(--font-cn);font-size:110px;line-height:1;color:rgba(238,241,248,.07);pointer-events:none">遊</div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="font-family:var(--font-cn);font-size:30px;line-height:1.25;color:var(--gold);writing-mode:vertical-rl;flex:none">西遊記</div>
+            <div style="min-width:0">
+              <div style="font-family:var(--font-display);font-size:21px;font-weight:700;line-height:1.2;margin-bottom:6px">Journey to the West</div>
+              <div style="font-size:13.5px;line-height:1.6;color:rgba(238,241,248,.85)">A Tang-dynasty monk is sent west to fetch the sacred scriptures. Guarding him on the road: a rebellious monkey king freed from beneath a mountain, a gluttonous pig marshal fallen from heaven, a river spirit seeking redemption, and a dragon prince turned white horse.</div>
+              <div style="font-size:13.5px;line-height:1.6;color:rgba(238,241,248,.85);margin-top:7px">Eighty-one trials stand between them and the West — demons, temptations, floods and fire. Today, the pilgrimage runs through L'Amoreaux. Every team is one of its legends.</div>
+            </div>
+          </div>
+          <img src="assets/art/chibi-group.png" alt="The pilgrims" style="display:block;width:100%;margin-top:14px;border-radius:8px">
+        </div>
+
+        <div style="display:flex;align-items:baseline;gap:8px;margin:6px 2px 0">
+          <span style="font-family:var(--font-cn);font-size:21px;color:var(--seal-red)">{{ cnLegends }}</span>
+          <span style="font-family:var(--font-display);font-size:19px;font-weight:700">The Eight Legends</span>
+        </div>
+        <sc-for list="{{ storyCards }}" as="c" hint-placeholder-count="4">
+          <div onClick="{{ c.onTap }}" style="background:{{ c.ground }};border-radius:14px;overflow:hidden;box-shadow:var(--shadow-card);border:1px solid rgba(46,49,56,.08);cursor:pointer">
+            <div style="display:flex;gap:13px;padding:13px">
+              <span style="width:92px;height:122px;border-radius:8px;flex:none;overflow:hidden;display:block;background:rgba(255,255,255,.25)"><span role="img" aria-label="{{ c.name }}" style="display:block;width:100%;height:100%;background-image:url('{{ c.artSrc }}');background-size:cover;background-position:50% 12%"></span></span>
+              <div style="min-width:0;flex:1">
+                <div style="display:flex;align-items:baseline;gap:8px">
+                  <span style="font-family:var(--font-cn);font-size:23px;color:{{ c.cnFg }}">{{ c.cn }}</span>
+                  <span style="font-family:var(--font-display);font-size:17px;font-weight:700;color:{{ c.fg }}">{{ c.name }}</span>
+                </div>
+                <div style="font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:{{ c.subFg }};margin:2px 0 5px">{{ c.title }} · {{ c.team }}</div>
+                <div style="font-size:13px;line-height:1.55;color:{{ c.bodyFg }}">{{ c.bio }}</div>
+                <div style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:{{ c.subFg }};margin-top:6px">{{ c.hint }}</div>
+              </div>
+            </div>
+            <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 13px 15px;display:flex;flex-direction:column;gap:9px">
+                <div style="height:1px;background:{{ c.line }}"></div>
+                <div style="font-size:13px;line-height:1.62;color:{{ c.bodyFg }}">{{ c.lore1 }}</div>
+                <div style="font-size:13px;line-height:1.62;color:{{ c.bodyFg }}">{{ c.lore2 }}</div>
+                <div style="font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:{{ c.subFg }};margin-top:3px">Bonds <span style="font-family:var(--font-cn);font-size:13px;text-transform:none;letter-spacing:0">{{ cnBonds }}</span></div>
+                <sc-for list="{{ c.rels }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;gap:9px;align-items:flex-start">
+                    <span style="width:24px;height:24px;border-radius:6px;background:var(--seal-red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-cn);font-size:14px;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)">{{ r.glyph }}</span>
+                    <div style="min-width:0;font-size:12.5px;line-height:1.55;color:{{ c.bodyFg }};padding-top:2px"><b>{{ r.name }}</b> — {{ r.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <div style="text-align:center;padding:10px 0 2px"><span onClick="{{ openReset }}" style="font-family:var(--font-cn);font-size:15px;color:var(--text-faint);opacity:.55;cursor:default;user-select:none">· 終 ·</span></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="flex:none;display:flex;background:var(--card);border-top:1px solid var(--border-soft);padding:6px 6px calc(8px + env(safe-area-inset-bottom))">
+    <sc-for list="{{ tabItems }}" as="tb" hint-placeholder-count="4">
+      <button onClick="{{ tb.onTap }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 0;color:{{ tb.fg }}">
+        <span style="font-family:var(--font-cn);font-size:19px;line-height:1.1">{{ tb.cn }}</span>
+        <span style="font-size:10.5px;font-weight:{{ tb.wt }};letter-spacing:.05em">{{ tb.label }}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <x-import component-from-global-scope="WukongUltimateDesignSystem_df4073.Dialog" open="{{ pinOpen }}" title="Admin sign-in" on-close="{{ closePin }}" hint-size="0px,0px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:14px">Enter the admin PIN to unlock schedule and score editing.</div>
+      <input value="{{ pinVal }}" onChange="{{ onPinInput }}" type="password" inputMode="numeric" placeholder="••••" style="padding:10px 12px;border:1px solid var(--border-soft);border-radius:8px;font-size:20px;letter-spacing:.35em;font-family:var(--font-body);background:var(--paper);color:var(--text-body);outline-color:var(--seal-red);width:130px">
+      <sc-if value="{{ pinErr }}" hint-placeholder-val="{{ false }}"><div style="color:var(--danger);font-size:13px;font-weight:700">Wrong PIN — try again.</div></sc-if>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button onClick="{{ closePin }}" style="background:transparent;color:var(--ink-1);border:1px solid var(--border-ink);border-radius:8px;padding:8px 18px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Cancel</button>
+        <button onClick="{{ confirmPin }}" style="background:var(--seal-red);color:#fff;border:1px solid transparent;border-radius:8px;padding:8px 18px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Unlock</button>
+      </div>
+    </div>
+  </x-import>
+
+  <x-import component-from-global-scope="WukongUltimateDesignSystem_df4073.Dialog" open="{{ resetOpen }}" title="Reset tournament" on-close="{{ closeReset }}" hint-size="0px,0px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:14px;line-height:1.5">This clears <b>all scores, schedule changes and team names</b> back to the defaults. Re-enter the admin PIN to confirm.</div>
+      <input value="{{ resetVal }}" onChange="{{ onResetInput }}" type="password" inputMode="numeric" placeholder="••••" style="padding:10px 12px;border:1px solid var(--border-soft);border-radius:8px;font-size:20px;letter-spacing:.35em;font-family:var(--font-body);background:var(--paper);color:var(--text-body);outline-color:var(--seal-red);width:130px">
+      <sc-if value="{{ resetErr }}" hint-placeholder-val="{{ false }}"><div style="color:var(--danger);font-size:13px;font-weight:700">Wrong PIN — nothing was reset.</div></sc-if>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button onClick="{{ closeReset }}" style="background:transparent;color:var(--ink-1);border:1px solid var(--border-ink);border-radius:8px;padding:8px 18px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Cancel</button>
+        <button onClick="{{ confirmReset }}" style="background:var(--seal-red);color:#fff;border:1px solid transparent;border-radius:8px;padding:8px 18px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Reset everything</button>
+      </div>
+    </div>
+  </x-import>
+
+  <x-import component-from-global-scope="WukongUltimateDesignSystem_df4073.Dialog" open="{{ editOpen }}" title="{{ editTitle }}" on-close="{{ closeEdit }}" hint-size="0px,0px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="flex:1;font-weight:700;color:var(--text-body);font-size:15px">{{ editHName }}</span>
+        <button onClick="{{ decH }}" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft);background:var(--paper);font-size:18px;cursor:pointer;color:var(--ink-1)">−</button>
+        <input value="{{ editH }}" onChange="{{ onEditH }}" type="text" inputMode="numeric" style="width:44px;text-align:center;font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--ink-1);border:1px solid var(--border-soft);border-radius:10px;background:var(--paper);padding:3px 0;outline-color:var(--seal-red)">
+        <button onClick="{{ incH }}" style="width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:var(--seal-red);color:#fff;font-size:18px;cursor:pointer">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="flex:1;font-weight:700;color:var(--text-body);font-size:15px">{{ editAName }}</span>
+        <button onClick="{{ decA }}" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft);background:var(--paper);font-size:18px;cursor:pointer;color:var(--ink-1)">−</button>
+        <input value="{{ editA }}" onChange="{{ onEditA }}" type="text" inputMode="numeric" style="width:44px;text-align:center;font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--ink-1);border:1px solid var(--border-soft);border-radius:10px;background:var(--paper);padding:3px 0;outline-color:var(--seal-red)">
+        <button onClick="{{ incA }}" style="width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:var(--seal-red);color:#fff;font-size:18px;cursor:pointer">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border-soft);padding-top:12px">
+        <span style="font-size:12.5px;font-weight:700;color:var(--text-muted)">Time</span>
+        <input value="{{ editTime }}" onChange="{{ onEditTime }}" style="width:64px;padding:7px 8px;border:1px solid var(--border-soft);border-radius:8px;font-size:14px;font-family:var(--font-body);background:var(--paper);color:var(--text-body)">
+        <span style="font-size:12.5px;font-weight:700;color:var(--text-muted);margin-left:6px">Field</span>
+        <sc-for list="{{ fieldBtns }}" as="fb" hint-placeholder-count="4">
+          <button onClick="{{ fb.onTap }}" style="padding:6px 10px;border-radius:8px;border:1px solid {{ fb.bd }};background:{{ fb.bg }};color:{{ fb.fg }};font-size:12px;font-weight:800;cursor:pointer;font-family:var(--font-body)">{{ fb.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:10px">
+        <button onClick="{{ clearResult }}" style="background:transparent;color:var(--danger);border:1px solid transparent;border-radius:8px;padding:8px 10px;font-family:var(--font-body);font-weight:700;font-size:13.5px;cursor:pointer">Clear result</button>
+        <div style="display:flex;gap:10px">
+          <button onClick="{{ closeEdit }}" style="background:transparent;color:var(--ink-1);border:1px solid var(--border-ink);border-radius:8px;padding:8px 16px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Cancel</button>
+          <button onClick="{{ saveResult }}" style="background:var(--seal-red);color:#fff;border:1px solid transparent;border-radius:8px;padding:8px 16px;font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer">Save final</button>
+        </div>
+      </div>
+    </div>
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:900},
+&quot;adminPin&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;8888&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Access&quot;},
+&quot;defaultAdmin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Access&quot;},
+&quot;showChinese&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  TEAMS = [
+    {id:'dasheng', cn:'大聖', name:'Dasheng', title:'The Great Sage', color:'var(--way-cream)', dark:false, pool:'A',
+     art:'assets/art/dasheng-cream.jpg', story:'assets/art/wukong-cutout.png', ground:'var(--way-cream)',
+     bio:'Sun Wukong, the Monkey King — born from stone, master of 72 transformations, armed with the golden staff. Fast hands, faster mouth.',
+     en:'Monkey Kings',
+     lore1:'Born from a stone egg on the Mountain of Flowers and Fruit, the monkey taught himself the 72 transformations, stole the golden staff from the Dragon King\u2019s armory, and struck his own name from the Book of Death. Heaven offered him a title to keep him quiet; he ate the peaches instead.',
+     lore2:'After wrecking the Heavenly Peach Banquet he was pinned under Five Elements Mountain for 500 years — until a monk on a westward road peeled back the seal, gave him a second chance, and a golden headband to keep him honest.',
+     rel:[['shengseng','his master, and the only person who can (painfully) rein him in.'],['yuanshuai','second brother — they bicker every mile of the road.'],['rulai','the palm he never escaped. Respect, grudgingly.'],['meiyao','his sworn enemy; the one gaze that pierces every disguise.']],
+     roster:[['Kai Zhang','M',1,1],['Leo Wen','M',7,0],['Marcus Lam','M',10,0],['Devin Choi','M',23,0],['Amy Xu','F',4,0],['Tina Guo','F',11,0],['Sara Lin','F',88,0]]},
+    {id:'yuanshuai', cn:'元帥', name:'Yuanshuai', title:'The Marshal', color:'var(--way-navy)', dark:true, pool:'B',
+     art:'assets/art/yuanshuai-navy.jpg', story:'assets/art/yuanshuai-navy.jpg', ground:'var(--way-navy)',
+     bio:'Zhu Bajie, once Marshal of the Heavenly Canopy, banished for flirting with the Moon Fairy. Big body, big blocks, bigger lunch.',
+     en:'Sky Marshals',
+     lore1:'Once Marshal Tianpeng, commander of 80,000 heavenly river troops, he drank too deep at the Peach Banquet and flirted with the Moon Fairy. The sentence: banishment, a pig\u2019s body, and a new name — Zhu Bajie.',
+     lore2:'He carries a nine-toothed rake, an appetite that empties villages, and more heart than he will ever admit. When it truly matters, the Marshal shows up.',
+     rel:[['nichang','the flirtation that cost him heaven. It is still awkward.'],['dasheng','first brother, chief rival, best friend.'],['shengseng','his master, whose patience he tests daily.']],
+     roster:[['Ben Tian','M',8,1],['Oscar Peng','M',32,0],['Ray Zhong','M',5,0],['Tom Hu','M',44,0],['Jia Chen','F',9,0],['Mona Li','F',21,0],['Eva Song','F',3,0]]},
+    {id:'luohan', cn:'羅漢', name:'Luohan', title:'The Arhat', color:'var(--way-green)', dark:true, pool:'B',
+     art:'assets/art/luohan-green.jpg', story:'assets/art/luohan-green.jpg', ground:'var(--way-green)',
+     bio:'Sha Wujing, the river spirit who carries the luggage and the marks. Steady, silent, always in the right spot.',
+     en:'River Guards',
+     lore1:'Sha Wujing was a general of the Curtain-Raising Hall until he shattered a crystal goblet at the Peach Banquet and was cast into the River of Flowing Sands, where he haunted travelers for 800 years.',
+     lore2:'The pilgrimage gave him a monk\u2019s robe, a crescent staff and the luggage. He carried all three to the very end and was named an arhat for it — the steadiest player on any line.',
+     rel:[['dasheng','third brother; follows the plan while others improvise.'],['yuanshuai','fellow fallen general, opposite temperament.'],['rulai','named him arhat when the journey was done.']],
+     roster:[['Stone Sha','M',26,1],['Gary Heng','M',11,0],['Bruce Kang','M',58,0],['Neil Cang','M',40,0],['Fiona Qin','F',14,0],['Hana Mo','F',33,0],['Ella Wei','F',7,0]]},
+    {id:'shengseng', cn:'聖僧', name:'Shengseng', title:'The Holy Monk', color:'var(--way-blush)', dark:false, pool:'B',
+     art:'assets/art/shengseng-pink.jpg', story:'assets/art/shengseng-pink.jpg', ground:'var(--way-blush)',
+     bio:'Tang Sanzang, the pilgrim monk the whole journey protects. Patient possession offense — 81 passes if that is what it takes.',
+     en:'Holy Monk',
+     lore1:'Tang Sanzang, the Tang emperor\u2019s sworn brother, sent west with nothing but faith, a robe and a horse. Every demon in the wilderness believes one bite of him grants immortality — hence the bodyguards.',
+     lore2:'He cannot fight, fly, or throw a flick huck. But without him there is no journey at all: eighty-one trials, one calm center.',
+     rel:[['dasheng','his hot-headed first disciple, held by the golden band.'],['meiyao','she has tried to eat him three times.'],['aolie','his white horse — secretly a prince.']],
+     roster:[['Sam Tang','M',14,1],['Jerry Kwok','M',19,0],['Chris Mo','M',55,0],['Max Luo','M',42,0],['Iris Shen','F',8,0],['Joy Zhu','F',16,0],['Vivian He','F',24,0]]},
+    {id:'aolie', cn:'敖烈', name:'Aolie', title:'The Dragon Prince', color:'var(--way-sky)', dark:false, pool:'A',
+     art:'assets/art/aolie-sky.jpg', story:'assets/art/aolie-sky.jpg', ground:'var(--way-sky)',
+     bio:'Third prince of the West Sea, who burned the pearl and became the White Dragon Horse. Carries the team all day, never complains.',
+     en:'White Dragons',
+     lore1:'Third prince of the West Sea Dragon King. He burned his father\u2019s pearl of wisdom, was sentenced to die under heaven\u2019s blade, and was spared on one condition: serve the pilgrimage.',
+     lore2:'He became the White Dragon Horse and carried the monk 108,000 li without a word of complaint — then revealed the dragon whenever the road demanded it.',
+     rel:[['shengseng','carries him west — the quietest devotion on the road.'],['dasheng','big brother in arms, who wakes the dragon in him.'],['rulai','the mercy that spared his life.']],
+     roster:[['Alex Ao','M',25,1],['Ryan Long','M',4,0],['Felix Hai','M',38,0],['Sean Bo','M',63,0],['Zoe Jiang','F',10,0],['Kelly Duan','F',28,0],['May Xiong','F',5,0]]},
+    {id:'rulai', cn:'如來', name:'Rulai', title:'The Buddha', color:'var(--way-brown)', dark:true, pool:'A',
+     art:'assets/art/rulai-brown.jpg', story:'assets/art/buddha-cutout.png', ground:'var(--way-brown)',
+     bio:'The Tathagata, whose palm no somersault can escape. Calm under pressure; the zone defense of the heavens.',
+     en:'Golden Palms',
+     lore1:'The Tathagata Buddha of the Western Paradise, keeper of the scriptures the whole pilgrimage exists to fetch. When Heaven\u2019s hundred thousand soldiers failed to contain the Monkey King, they sent for him.',
+     lore2:'He turned his hand over. Five fingers became a mountain range, and the sage who could somersault 108,000 li landed exactly where he started. Every road west ends at his palm.',
+     rel:[['dasheng','pinned him for 500 years — then pardoned him.'],['shengseng','the pilgrimage runs to his doorstep.'],['luohan','rewarded his long penance with arhat-hood.']],
+     roster:[['Victor Shi','M',18,1],['Alan Du','M',2,0],['Ken Bai','M',66,0],['Paul Jin','M',30,0],['Grace Yao','F',12,0],['Lily Fang','F',27,0],['Nina Wu','F',6,0]]},
+    {id:'meiyao', cn:'魅妖', name:'Meiyao', title:'The Enchantress', color:'var(--way-maroon)', dark:true, pool:'B',
+     art:'assets/art/meiyao-maroon.jpg', story:'assets/art/enchantress-cutout.png', ground:'var(--way-maroon)',
+     bio:'The shapeshifting temptress of the bone-white wastes. You never guard the same look twice.',
+     en:'White Bone Spirit',
+     lore1:'The White Bone Demon of the wastes, who can wear any face: a village girl with a food basket, a weeping grandmother, a frail old man. Three disguises — and three times struck down by the Monkey King\u2019s staff.',
+     lore2:'She is the road\u2019s hardest lesson: things are not what they seem, and kindness without judgment gets your master kidnapped.',
+     rel:[['dasheng','the only eyes that see through every disguise.'],['shengseng','her prize — immortality in a single bite, they say.'],['nichang','mirror opposites in the same moonlight.']],
+     roster:[['Mia Bo','F',17,1],['Luna Xie','F',31,0],['Coco Deng','F',9,0],['Anna Pan','F',22,0],['Eric Gu','M',45,0],['Hank Yu','M',3,0],['Owen Zou','M',12,0]]},
+    {id:'nichang', cn:'霓裳', name:'Nichang', title:'The Moon Fairy', color:'var(--way-celadon)', dark:false, pool:'A',
+     art:'assets/art/nichang-celadon.jpg', story:'assets/art/nichang-celadon.jpg', ground:'var(--way-celadon)',
+     bio:'The rainbow-robed fairy of the Moon Palace. Graceful in the air — expect layout catches in silk sleeves.',
+     en:'Moon Fairy',
+     lore1:'A fairy of the Moon Palace who dances in robes of rainbow feathers — the melody \u201cRainbow Skirts and Feathered Coats\u201d is named for her art. From Chang\u2019e\u2019s cold palace she watched the road west unfold below.',
+     lore2:'One clumsy toast from a heavenly marshal changed two destinies: he fell to earth in a pig\u2019s body, and she learned that even immortals get tangled in mortal stories.',
+     rel:[['yuanshuai','the marshal who toasted her once — and fell from heaven for it. Still awkward.'],['meiyao','mirror opposites caught in the same moonlight.']],
+     roster:[['Cindy Ni','F',13,1],['Rita Chang','F',20,0],['Wendy Cao','F',35,0],['Elaine Ma','F',7,0],['Jack Feng','M',29,0],['Ivan Su','M',15,0],['Dan Qiu','M',50,0]]}
+  ];
+  ORDER = ['dasheng','yuanshuai','luohan','shengseng','aolie','rulai','meiyao','nichang'];
+  GAMES = [
+    {id:'a11', phase:'pool', pool:'A', slot:'Pool round 1', time:'6:20', field:'Field 1', h:'dasheng', a:'aolie'},
+    {id:'a12', phase:'pool', pool:'A', slot:'Pool round 1', time:'6:20', field:'Field 2', h:'rulai', a:'nichang'},
+    {id:'b11', phase:'pool', pool:'B', slot:'Pool round 1', time:'6:20', field:'Field 3', h:'yuanshuai', a:'luohan'},
+    {id:'b12', phase:'pool', pool:'B', slot:'Pool round 1', time:'6:20', field:'Field 4', h:'shengseng', a:'meiyao'},
+    {id:'a21', phase:'pool', pool:'A', slot:'Pool round 2', time:'7:00', field:'Field 1', h:'dasheng', a:'nichang'},
+    {id:'a22', phase:'pool', pool:'A', slot:'Pool round 2', time:'7:00', field:'Field 2', h:'rulai', a:'aolie'},
+    {id:'b21', phase:'pool', pool:'B', slot:'Pool round 2', time:'7:00', field:'Field 3', h:'yuanshuai', a:'meiyao'},
+    {id:'b22', phase:'pool', pool:'B', slot:'Pool round 2', time:'7:00', field:'Field 4', h:'shengseng', a:'luohan'},
+    {id:'a31', phase:'pool', pool:'A', slot:'Pool round 3', time:'7:40', field:'Field 1', h:'dasheng', a:'rulai'},
+    {id:'a32', phase:'pool', pool:'A', slot:'Pool round 3', time:'7:40', field:'Field 2', h:'nichang', a:'aolie'},
+    {id:'b31', phase:'pool', pool:'B', slot:'Pool round 3', time:'7:40', field:'Field 3', h:'yuanshuai', a:'shengseng'},
+    {id:'b32', phase:'pool', pool:'B', slot:'Pool round 3', time:'7:40', field:'Field 4', h:'meiyao', a:'luohan'},
+    {id:'qf1', phase:'br', slot:'Quarterfinals', time:'8:30', field:'Field 1', h:'seed:A1', a:'seed:B4'},
+    {id:'qf2', phase:'br', slot:'Quarterfinals', time:'8:30', field:'Field 2', h:'seed:B2', a:'seed:A3'},
+    {id:'qf3', phase:'br', slot:'Quarterfinals', time:'8:30', field:'Field 3', h:'seed:B1', a:'seed:A4'},
+    {id:'qf4', phase:'br', slot:'Quarterfinals', time:'8:30', field:'Field 4', h:'seed:A2', a:'seed:B3'},
+    {id:'sf1', phase:'br', slot:'Semifinals', time:'9:10', field:'Field 1', h:'w:qf1', a:'w:qf2'},
+    {id:'sf2', phase:'br', slot:'Semifinals', time:'9:10', field:'Field 2', h:'w:qf3', a:'w:qf4'},
+    {id:'cs1', phase:'br', slot:'Consolation semis — QF runners-up play on', time:'9:10', field:'Field 3', h:'l:qf1', a:'l:qf2'},
+    {id:'cs2', phase:'br', slot:'Consolation semis — QF runners-up play on', time:'9:10', field:'Field 4', h:'l:qf3', a:'l:qf4'},
+    {id:'br3', phase:'br', slot:'Placement games — every team plays', time:'10:00', field:'Field 2', h:'l:sf1', a:'l:sf2', tag:'3rd place'},
+    {id:'p5', phase:'br', slot:'Placement games — every team plays', time:'10:00', field:'Field 3', h:'w:cs1', a:'w:cs2', tag:'5th place'},
+    {id:'p7', phase:'br', slot:'Placement games — every team plays', time:'10:00', field:'Field 4', h:'l:cs1', a:'l:cs2', tag:'7th place'},
+    {id:'fin', phase:'br', slot:'Championship final', time:'10:00', field:'Field 1', h:'w:sf1', a:'w:sf2'}
+  ];
+  REFLABEL = {'seed:A1':'Pool A #1','seed:A2':'Pool A #2','seed:A3':'Pool A #3','seed:A4':'Pool A #4',
+    'seed:B1':'Pool B #1','seed:B2':'Pool B #2','seed:B3':'Pool B #3','seed:B4':'Pool B #4',
+    'w:qf1':'Winner QF1','w:qf2':'Winner QF2','w:qf3':'Winner QF3','w:qf4':'Winner QF4',
+    'w:sf1':'Winner SF1','w:sf2':'Winner SF2','l:sf1':'SF1 Runner-up','l:sf2':'SF2 Runner-up',
+    'l:qf1':'QF1 Runner-up','l:qf2':'QF2 Runner-up','l:qf3':'QF3 Runner-up','l:qf4':'QF4 Runner-up',
+    'w:cs1':'Winner Cons. 1','w:cs2':'Winner Cons. 2','l:cs1':'Cons. 1 Runner-up','l:cs2':'Cons. 2 Runner-up'};
+  HOUSE = [
+    {head:'5v5 speedpoint', body:'five players per team on the field; after every point play restarts immediately — no pull, no huddle.'},
+    {head:'Gender ratio 3:2', body:'mixed lines of five with at least 2 players of each gender on the field at all times.'},
+    {head:'Stall count 8', body:'the marker counts to eight, not ten. "Stalling… one" through eight.'},
+    {head:'Tap-in substitutions', body:'subs happen on the fly, but the incoming player must tap the outgoing player in at the sideline.'},
+    {head:'One timeout per team', body:'each team gets one 1-minute timeout per game — none in the last 5 minutes.'},
+    {head:'No halftime break', body:'games run straight through; teams switch ends without a break at the half.'},
+    {head:'Footblocks allowed', body:'footblocks are legal on the mark. Keep them clean.'}
+  ];
+  SPEED = [
+    {head:'Continuous play', body:'a pull starts the game; after each goal the team that was scored on picks the disc up in its own end zone and plays immediately.'},
+    {head:'Scoring', body:'one point per goal, caught in the attacking end zone. Games run to the 30-minute cap; finish the live point, and if tied play one more.'},
+    {head:'Turnovers', body:'drops, blocks, interceptions, out-of-bounds and stall-outs are turnovers — play on where the disc lands.'},
+    {head:'The thrower', body:'establish a pivot; you may not run with the disc. The marker must be within 3 metres to count the stall.'},
+    {head:'Fouls & contests', body:'non-contact sport; the fouled player calls it. Contested calls send the disc back to the thrower.'},
+    {head:'Boundaries', body:'sidelines are out; first point of contact decides. The disc can fly out and curve back in.'}
+  ];
+  state = {tab:'games', admin:false, pinOpen:false, pinVal:'', pinErr:false,
+    resetOpen:false, resetVal:'', resetErr:false,
+    editId:null, editH:0, editA:0, editTime:'', editField:'Field 1',
+    openTeam:null, openStory:null, renameVal:'', teamNames:(this.loadLS().teamNames)||{},
+    scores:(this.loadLS().scores)||{}, sched:(this.loadLS().sched)||{}};
+  loadLS(){ if(this._ls) return this._ls; try{this._ls = JSON.parse(localStorage.getItem('wukong-jwc-v1'))||{};}catch(e){this._ls={};}
+    // migrate sched overrides saved under the old daytime schedule to the evening defaults
+    const MIG = {'9:00':'6:20','9:45':'7:00','10:30':'7:40','11:30':'8:30','12:45':'9:10','13:45':'10:00','14:30':'10:00',
+      '6:30':'6:20','7:15':'7:00','8:00':'7:40','8:50':'8:30','9:40':'9:10','10:25':'10:00'};
+    const sch = this._ls.sched||{};
+    Object.keys(sch).forEach(id=>{ const g=this.GAMES.find(x=>x.id===id); if(!g) return;
+      const o=sch[id]; if(o.time && MIG[o.time]) o.time = MIG[o.time];
+      if((!o.time||o.time===g.time) && (!o.field||o.field===g.field)) delete sch[id]; });
+    return this._ls; }
+  persist(){ try{localStorage.setItem('wukong-jwc-v1', JSON.stringify({scores:this.state.scores, sched:this.state.sched, teamNames:this.state.teamNames}));}catch(e){} }
+  team(id){ return this.TEAMS.find(t=>t.id===id); }
+  teamName(id){ return this.state.teamNames[id] || this.team(id).en; }
+  gameTime(g){ const o=this.state.sched[g.id]||{}; return o.time||g.time; }
+  gameField(g){ const o=this.state.sched[g.id]||{}; return o.field||g.field; }
+  standings(pool){
+    const rows = this.TEAMS.filter(t=>t.pool===pool).map(t=>({id:t.id, t, w:0, l:0, pf:0, pa:0}));
+    const by = {}; rows.forEach(r=>by[r.id]=r);
+    this.GAMES.filter(g=>g.phase==='pool'&&g.pool===pool).forEach(g=>{
+      const s=this.state.scores[g.id]; if(!s) return;
+      const H=by[g.h], A=by[g.a];
+      H.pf+=s.h; H.pa+=s.a; A.pf+=s.a; A.pa+=s.h;
+      if(s.h>s.a){H.w++;A.l++;} else if(s.a>s.h){A.w++;H.l++;}
+    });
+    rows.sort((x,y)=> y.w-x.w || (y.pf-y.pa)-(x.pf-x.pa) || y.pf-x.pf || x.t.name.localeCompare(y.t.name));
+    return rows;
+  }
+  poolDone(pool){ return this.GAMES.filter(g=>g.phase==='pool'&&g.pool===pool).every(g=>this.state.scores[g.id]); }
+  renderVals(){
+    const P = this.props||{}; const showCn = P.showChinese ?? true; const st = this.state;
+    const scores = st.scores;
+    const sA = this.standings('A'), sB = this.standings('B');
+    const doneA = this.poolDone('A'), doneB = this.poolDone('B'), poolsDone = doneA && doneB;
+    const seeds = {};
+    if(doneA) sA.forEach((r,i)=>seeds['A'+(i+1)]=r.id);
+    if(doneB) sB.forEach((r,i)=>seeds['B'+(i+1)]=r.id);
+    const gameById = {}; this.GAMES.forEach(g=>gameById[g.id]=g);
+    const resolve = (ref) => {
+      if(!ref) return null;
+      if(!ref.includes(':')) return ref;
+      const [k,v] = ref.split(':');
+      if(k==='seed') return seeds[v]||null;
+      const g = gameById[v]; const s = scores[v];
+      if(!g||!s||s.h===s.a) return null;
+      const hi = resolve(g.h), ai = resolve(g.a);
+      if(!hi||!ai) return null;
+      if(k==='w') return s.h>s.a?hi:ai;
+      return s.h>s.a?ai:hi;
+    };
+    const side = (ref) => {
+      const id = resolve(ref);
+      if(id){ const t=this.team(id); return {name:this.teamName(id), cn:showCn?t.cn:'', color:t.color, real:true}; }
+      return {name:this.REFLABEL[ref]||'TBD', cn:'', color:'var(--ink-wash)', real:false};
+    };
+    const mkGame = (g) => {
+      const s = scores[g.id];
+      const H = side(g.h), A = side(g.a);
+      const editable = st.admin && H.real && A.real;
+      return {
+        id:g.id, time:this.gameTime(g), field:this.gameField(g).replace('Field ','F'), tag:g.tag||'',
+        hName:H.name, hCn:H.cn, hColor:H.color, hFg:H.real?'var(--ink-1)':'var(--ink-3)',
+        aName:A.name, aCn:A.cn, aColor:A.color, aFg:A.real?'var(--ink-1)':'var(--ink-3)',
+        hs: s? String(s.h):'–', as: s? String(s.a):'–',
+        hsFg: s&&s.h>=s.a ? 'var(--seal-red)':'var(--ink-3)',
+        asFg: s&&s.a>=s.h ? 'var(--seal-red)':'var(--ink-3)',
+        status: s ? 'FINAL' : '',
+        cursor: editable ? 'pointer' : 'default',
+        onTap: editable ? (()=>this.openEdit(g)) : undefined
+      };
+    };
+    const slots = (phase) => {
+      const out = [];
+      this.GAMES.filter(g=>g.phase===phase).forEach(g=>{
+        let sl = out[out.length-1];
+        if(!sl || sl.key!==g.slot){ sl = {key:g.slot, tag:g.slot, time:this.gameTime(g), games:[]}; out.push(sl); }
+        sl.games.push(mkGame(g));
+      });
+      return out;
+    };
+    const standTables = [
+      {label:'Pool A'+(doneA?' · final':''), rows:sA.map((r,i)=>({rank:String(i+1), color:r.t.color, name:this.teamName(r.id), rec:r.w+'–'+r.l, diff:(r.pf-r.pa>0?'+':'')+(r.pf-r.pa)}))},
+      {label:'Pool B'+(doneB?' · final':''), rows:sB.map((r,i)=>({rank:String(i+1), color:r.t.color, name:this.teamName(r.id), rec:r.w+'–'+r.l, diff:(r.pf-r.pa>0?'+':'')+(r.pf-r.pa)}))}
+    ];
+    const recOf = (id) => { const p=this.team(id).pool; const r=(p==='A'?sA:sB).find(x=>x.id===id); return r.w+'–'+r.l; };
+    const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    const orderedTeams = this.ORDER.map(id=>this.team(id));
+    const teamCards = orderedTeams.map(t=>({
+      artSrc:t.art||BLANK, hasArt:!!t.art, name:t.name, teamName:this.teamName(t.id), charName:t.name,
+      cn:showCn?t.cn:'', title:t.title, pool:t.pool, color:t.color,
+      rec:recOf(t.id), open:st.openTeam===t.id, chev:st.openTeam===t.id?'▲':'▼', canRename:st.admin,
+      onTap:()=>this.setState({openTeam: st.openTeam===t.id?null:t.id, renameVal:this.teamName(t.id)}),
+      onRenameSave:()=>{ const tn={...this.state.teamNames, [t.id]:(this.state.renameVal||'').trim()||t.en};
+        this.setState({teamNames:tn}, ()=>this.persist()); },
+      roster:t.roster.map(p=>({num:String(p[2]), name:p[0], cap:p[3]?'· C':'', g:p[1],
+        gFg:p[1]==='F'?'var(--seal-red-deep)':'#2c3f6b', gBg:p[1]==='F'?'#f3e2df':'#dde4f2'}))
+    }));
+    const storyCards = orderedTeams.map(t=>({
+      artSrc:t.story||BLANK, hasArt:!!t.story, name:t.name, cn:showCn?t.cn:'', title:t.title, pool:t.pool, bio:t.bio, ground:t.ground,
+      team:this.teamName(t.id), lore1:t.lore1, lore2:t.lore2,
+      open:st.openStory===t.id,
+      hint: st.openStory===t.id ? '▲ Fold the scroll' : '▼ Tap for the full legend',
+      onTap:()=>this.setState({openStory: st.openStory===t.id?null:t.id}),
+      line:t.dark?'rgba(238,241,248,.25)':'rgba(46,49,56,.15)',
+      rels:(t.rel||[]).map(r=>{ const o=this.team(r[0]); return {glyph:o.cn.charAt(0), name:o.name, text:r[1]}; }),
+      fg:t.dark?'var(--text-on-dark)':'var(--ink-1)', cnFg:t.dark?'var(--gold)':'var(--seal-red)',
+      subFg:t.dark?'rgba(238,241,248,.6)':'var(--ink-2)', bodyFg:t.dark?'rgba(238,241,248,.85)':'var(--ink-1)'
+    }));
+    const eg = st.editId ? gameById[st.editId] : null;
+    const egH = eg ? side(eg.h) : {name:''}, egA = eg ? side(eg.a) : {name:''};
+    const fields = ['Field 1','Field 2','Field 3','Field 4'];
+    const tabs = [['games','Games','賽'],['teams','Teams','隊'],['field','Fields','場'],['rules','Rules','規'],['story','Story','書']];
+    return {
+      sealSize:34, admin:st.admin, cnTitle:showCn?'西遊盃':'',
+      cnPool:showCn?'預賽':'', cnStand:showCn?'排名':'', cnBracket:showCn?'決賽':'',
+      cnTeams:showCn?'八隊':'', cnRules:showCn?'規則':'', cnHouse:showCn?'家規':'',
+      cnSpirit:showCn?'精神':'', cnLegends:showCn?'群英':'', cnBonds:showCn?'因緣':'',
+      renameVal:st.renameVal, onRenameInput:(e)=>this.setState({renameVal:e.target.value}),
+      roleLabel: st.admin?'ADMIN':'PLAYER',
+      roleBg: st.admin?'var(--seal-red)':'rgba(238,241,248,.1)',
+      roleFg: st.admin?'#fff':'rgba(238,241,248,.8)',
+      roleBorder: st.admin?'var(--seal-red)':'rgba(238,241,248,.3)',
+      roleDot: st.admin?'#fff':'var(--gold)',
+      onAdminTap: ()=> st.admin ? this.setState({admin:false}) : this.setState({pinOpen:true, pinVal:'', pinErr:false}),
+      tabGames:st.tab==='games', tabTeams:st.tab==='teams', tabField:st.tab==='field', tabRules:st.tab==='rules', tabStory:st.tab==='story',
+      cnField:showCn?'場地':'',
+      fieldStrips:[1,2,3,4].map(n=>({label:'F'+n})),
+      tabItems: tabs.map(t=>({label:t[1], cn:showCn?t[2]:'●', onTap:()=>this.setState({tab:t[0]}),
+        fg: st.tab===t[0]?'var(--seal-red)':'var(--ink-3)', wt: st.tab===t[0]?'800':'600'})),
+      seedBanner: poolsDone ? 'Pool play complete — the bracket is seeded.' : 'Playoffs seed automatically once every pool game has a final score.',
+      poolSlots: slots('pool'), brSlots: slots('br'), standTables, teamCards, storyCards,
+      houseRules:this.HOUSE, speedRules:this.SPEED,
+      pinOpen:st.pinOpen, pinVal:st.pinVal, pinErr:st.pinErr,
+      onPinInput:(e)=>this.setState({pinVal:e.target.value, pinErr:false}),
+      closePin:()=>this.setState({pinOpen:false, pinVal:'', pinErr:false}),
+      confirmPin:()=>{ if(st.pinVal===(P.adminPin ?? '8888')) this.setState({admin:true, pinOpen:false, pinVal:'', pinErr:false}); else this.setState({pinErr:true, pinVal:''}); },
+      resetOpen:st.resetOpen, resetVal:st.resetVal, resetErr:st.resetErr,
+      openReset:()=>this.setState({resetOpen:true, resetVal:'', resetErr:false}),
+      closeReset:()=>this.setState({resetOpen:false, resetVal:'', resetErr:false}),
+      onResetInput:(e)=>this.setState({resetVal:e.target.value, resetErr:false}),
+      confirmReset:()=>{ if(this.state.resetVal!==(P.adminPin ?? '8888')){ this.setState({resetErr:true, resetVal:''}); return; }
+        this.setState({scores:{}, sched:{}, teamNames:{}, resetOpen:false, resetVal:'', resetErr:false, editId:null, openTeam:null}, ()=>this.persist()); },
+      editOpen:!!st.editId, editTitle: eg ? (egH.name+' vs '+egA.name) : '',
+      editHName:egH.name, editAName:egA.name, editH:st.editH, editA:st.editA,
+      incH:()=>this.setState(s=>({editH:s.editH+1})), decH:()=>this.setState(s=>({editH:Math.max(0,s.editH-1)})),
+      incA:()=>this.setState(s=>({editA:s.editA+1})), decA:()=>this.setState(s=>({editA:Math.max(0,s.editA-1)})),
+      onEditH:(e)=>{ const v=parseInt(e.target.value.replace(/\D/g,''),10); this.setState({editH:isNaN(v)?0:Math.min(99,v)}); },
+      onEditA:(e)=>{ const v=parseInt(e.target.value.replace(/\D/g,''),10); this.setState({editA:isNaN(v)?0:Math.min(99,v)}); },
+      editTime:st.editTime, onEditTime:(e)=>this.setState({editTime:e.target.value}),
+      fieldBtns: fields.map(f=>({label:f.replace('Field ','F'), onTap:()=>this.setState({editField:f}),
+        bg: st.editField===f?'var(--seal-red)':'var(--paper)', fg: st.editField===f?'#fff':'var(--ink-2)',
+        bd: st.editField===f?'var(--seal-red)':'var(--border-soft)'})),
+      closeEdit:()=>this.setState({editId:null}),
+      clearResult:()=>{ const sc={...st.scores}; delete sc[st.editId]; this.setState({scores:sc, editId:null}, ()=>this.persist()); },
+      saveResult:()=>{ const sc={...st.scores, [st.editId]:{h:st.editH, a:st.editA}};
+        const g=gameById[st.editId]; const sd={...st.sched};
+        if(st.editTime!==g.time || st.editField!==g.field) sd[st.editId]={time:st.editTime, field:st.editField};
+        else delete sd[st.editId];
+        this.setState({scores:sc, sched:sd, editId:null}, ()=>this.persist()); }
+    };
+  }
+  componentDidMount(){ if(this.props && this.props.defaultAdmin) this.setState({admin:true}); }
+  openEdit(g){
+    const s = this.state.scores[g.id];
+    this.setState({editId:g.id, editH:s?s.h:0, editA:s?s.a:0, editTime:this.gameTime(g), editField:this.gameField(g)});
+  }
+}
+</script>
+</body>
+</html>
