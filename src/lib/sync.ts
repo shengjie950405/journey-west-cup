@@ -109,13 +109,37 @@ export async function pushPatch(patch: Patch, pin: string): Promise<TournamentSt
   return body.state;
 }
 
-export async function checkPin(pin: string): Promise<Role> {
-  const res = await fetch('/api/auth', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ pin }),
-  });
-  if (!res.ok) return 'player';
-  const body = (await res.json()) as { role: Role };
-  return body.role;
+/**
+ * Why a sign-in failed. "Wrong PIN" and "there is no backend" look identical to
+ * a user otherwise, and they need completely different fixes.
+ */
+export type AuthOutcome =
+  | { ok: true; role: Role }
+  | { ok: false; reason: 'wrong-pin' | 'no-backend' | 'unreachable' };
+
+export async function checkPin(pin: string): Promise<AuthOutcome> {
+  let res: Response;
+  try {
+    res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ pin }),
+    });
+  } catch {
+    return { ok: false, reason: 'unreachable' };
+  }
+
+  // A 404 means the functions were never deployed — e.g. the site was published
+  // as static files only, so there is nothing to check a PIN against.
+  if (res.status === 404) return { ok: false, reason: 'no-backend' };
+  if (!res.ok) return { ok: false, reason: 'unreachable' };
+
+  let role: Role;
+  try {
+    role = ((await res.json()) as { role: Role }).role;
+  } catch {
+    return { ok: false, reason: 'no-backend' };
+  }
+
+  return role === 'player' ? { ok: false, reason: 'wrong-pin' } : { ok: true, role };
 }

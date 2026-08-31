@@ -224,8 +224,14 @@ await page.waitForTimeout(100);
 check('reset dialog opens from 終', (await page.locator('body').innerText()).includes('Reset tournament'));
 await page.getByLabel('Admin PIN').fill('0000');
 await page.getByRole('button', { name: 'Reset everything' }).click();
-await page.waitForTimeout(100);
-check('wrong PIN resets nothing', (await page.locator('body').innerText()).includes('nothing was reset'));
+await page.waitForTimeout(250);
+check('wrong PIN resets nothing', (await page.locator('body').innerText()).includes('Wrong PIN'));
+
+// a valid captain PIN is refused too, with wording that says why
+await page.getByLabel('Admin PIN').fill('2222');
+await page.getByRole('button', { name: 'Reset everything' }).click();
+await page.waitForTimeout(250);
+check('captain PIN cannot reset', (await page.locator('body').innerText()).includes('cannot reset the tournament'));
 await page.getByLabel('Admin PIN').fill('8888');
 await page.getByRole('button', { name: 'Reset everything' }).click();
 await page.waitForTimeout(150);

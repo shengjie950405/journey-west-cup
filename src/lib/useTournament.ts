@@ -102,8 +102,8 @@ export function useTournament() {
     if (!saved) return;
     let alive = true;
     void checkPin(saved)
-      .then((r) => {
-        if (alive) setRole(r);
+      .then((outcome) => {
+        if (alive) setRole(outcome.ok ? outcome.role : 'player');
       })
       .catch(() => {
         /* offline: stay a player until the next successful check */

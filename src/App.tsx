@@ -7,7 +7,7 @@ import { SealBadge } from './components/SealBadge';
 import type { Game } from './data/games';
 import type { TeamId } from './data/teams';
 import { gameFieldOf, gameTimeOf, refLabel } from './lib/tournament';
-import { checkPin } from './lib/sync';
+import { checkPin, type AuthOutcome } from './lib/sync';
 import { useTournament } from './lib/useTournament';
 import { FieldsTab } from './tabs/FieldsTab';
 import { GamesTab } from './tabs/GamesTab';
@@ -39,6 +39,15 @@ export function App() {
   const admin = t.isAdmin;
   const roleLabel = t.role === 'admin' ? 'ADMIN' : t.role === 'captain' ? 'CAPTAIN' : 'PLAYER';
   const signedIn = t.role !== 'player';
+
+  /** Turns a failed sign-in into wording that points at the actual fix. */
+  const authError = (outcome: Extract<AuthOutcome, { ok: false }>): string => {
+    if (outcome.reason === 'no-backend')
+      return 'This site is published without its backend, so no PIN can work. Deploy it from the Git repository rather than as static files.';
+    if (outcome.reason === 'unreachable')
+      return "Can't reach the server. Check your connection and try again.";
+    return 'Wrong PIN — try again.';
+  };
 
   /** Name for a slot, falling back to its placeholder label while undecided. */
   const sideName = (ref: string) => {
@@ -224,15 +233,14 @@ export function App() {
             Organisers: the admin PIN also unlocks scores, times and fields.
           </>
         }
-        errorText="Wrong PIN — try again."
         confirmLabel="Unlock"
         onClose={() => setPinOpen(false)}
         onConfirm={async (pin) => {
-          const nextRole = await checkPin(pin);
-          if (nextRole === 'player') return false;
-          await t.signIn(pin, nextRole);
+          const outcome = await checkPin(pin);
+          if (!outcome.ok) return authError(outcome);
+          await t.signIn(pin, outcome.role);
           setPinOpen(false);
-          return true;
+          return null;
         }}
       />
 
@@ -245,20 +253,21 @@ export function App() {
             to the defaults. Re-enter the admin PIN to confirm.
           </>
         }
-        errorText="Wrong PIN — nothing was reset."
         confirmLabel="Reset everything"
         onClose={() => setResetOpen(false)}
         onConfirm={async (pin) => {
           // Reset is admin-only, and re-entering the PIN also upgrades this
           // device's session so the queued patch is sent with admin rights.
-          const nextRole = await checkPin(pin);
-          if (nextRole !== 'admin') return false;
-          await t.signIn(pin, nextRole);
+          const outcome = await checkPin(pin);
+          if (!outcome.ok) return authError(outcome);
+          if (outcome.role !== 'admin')
+            return 'That PIN cannot reset the tournament — nothing was changed.';
+          await t.signIn(pin, outcome.role);
           t.resetAll();
           setEditGame(null);
           setOpenTeam(null);
           setResetOpen(false);
-          return true;
+          return null;
         }}
       />
 

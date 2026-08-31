@@ -6,11 +6,13 @@ interface Props {
   title: string;
   /** Body copy explaining what the PIN authorises */
   prompt: React.ReactNode;
-  errorText: string;
   confirmLabel: string;
   onClose: () => void;
-  /** Resolves true when the PIN was accepted. Checked server-side. */
-  onConfirm: (pin: string) => Promise<boolean>;
+  /**
+   * Checked server-side. Resolves null on success, or the message to show —
+   * so the dialog can say *why* it failed rather than always blaming the PIN.
+   */
+  onConfirm: (pin: string) => Promise<string | null>;
 }
 
 /**
@@ -21,19 +23,18 @@ export function PinDialog({
   open,
   title,
   prompt,
-  errorText,
   confirmLabel,
   onClose,
   onConfirm,
 }: Props) {
   const [value, setValue] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (open) {
       setValue('');
-      setError(false);
+      setError(null);
       setBusy(false);
     }
   }, [open]);
@@ -42,8 +43,12 @@ export function PinDialog({
     if (busy) return;
     setBusy(true);
     try {
-      if (await onConfirm(value)) return;
-      setError(true);
+      const message = await onConfirm(value);
+      if (!message) return;
+      setError(message);
+      setValue('');
+    } catch {
+      setError('Something went wrong. Try again.');
       setValue('');
     } finally {
       setBusy(false);
@@ -58,7 +63,7 @@ export function PinDialog({
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
-            setError(false);
+            setError(null);
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') void submit();
@@ -82,8 +87,15 @@ export function PinDialog({
           }}
         />
         {error && (
-          <div style={{ color: 'var(--danger)', fontSize: 13, fontWeight: 700 }}>
-            {errorText}
+          <div
+            style={{
+              color: 'var(--danger)',
+              fontSize: 13,
+              fontWeight: 700,
+              lineHeight: 1.45,
+            }}
+          >
+            {error}
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
