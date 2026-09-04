@@ -73,7 +73,30 @@ for (const [label, marker] of [
   check(`tab ${label} renders`, (await page.locator('body').innerText()).includes(marker));
 }
 
+// --- Sponsors live at the foot of the Fields tab
+await page.getByRole('button', { name: /Fields$/ }).click();
+await page.waitForTimeout(150);
+const fieldsText = await page.locator('body').innerText();
+check('sponsors section present', fieldsText.includes('Our Sponsors'));
+check('season sponsor billed first', fieldsText.indexOf('SEASON SPONSOR') < fieldsText.indexOf('ON THE DAY'));
+check('season sponsor named', fieldsText.includes('Jessica Yin') && fieldsText.includes('RE/MAX'));
+check('all four perk sponsors listed',
+  ['Fantuan Delivery', 'Dudu Fresh', 'Form & Function Physio', 'J17 Performance']
+    .every((n) => fieldsText.includes(n)));
+check('perks described', ['bubble tea', 'snacks and drinks', 'physio', 'training gift']
+  .every((p) => fieldsText.toLowerCase().includes(p.toLowerCase())));
+check('sponsor contact links tappable',
+  (await page.locator('a[href^="tel:"]').count()) >= 1 &&
+  (await page.locator('a[href^="mailto:"]').count()) >= 1 &&
+  (await page.locator('a[href^="https://jessicayinhomes"]').count()) === 1);
+// Logos are dropped in separately; a missing file must degrade to the name.
+check('missing logos fall back to names', fieldsText.includes('Fantuan Delivery'));
+check('field layout still above sponsors',
+  fieldsText.indexOf('Field Layout') < fieldsText.indexOf('Our Sponsors'));
+
 // --- Team order on Teams tab
+await page.getByRole('button', { name: /Teams$/ }).click();
+await page.waitForTimeout(120);
 await page.getByRole('button', { name: /Teams$/ }).click();
 await page.waitForTimeout(60);
 const teamsText = await page.locator('body').innerText();

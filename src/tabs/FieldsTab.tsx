@@ -1,5 +1,6 @@
 import { CONFIG } from '../config';
 import { SectionHeading } from '../components/SectionHeading';
+import { Sponsors } from '../components/Sponsors';
 
 const VENUE_NOTES = [
   {
@@ -176,6 +177,8 @@ export function FieldsTab() {
           ))}
         </div>
       </div>
+
+      <Sponsors />
     </div>
   );
 }
