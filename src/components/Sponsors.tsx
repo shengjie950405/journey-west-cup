@@ -272,6 +272,18 @@ export function Sponsors() {
                 </span>
               )}
             </div>
+            {sp.tagline && (
+              <div
+                style={{
+                  fontSize: 11.5,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '.02em',
+                  marginTop: 1,
+                }}
+              >
+                {sp.tagline}
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 4 }}>
               <span
                 style={{
@@ -297,14 +309,6 @@ export function Sponsors() {
           </div>
 
           <Artwork src={sp.logo} name={sp.name} aspect={sp.aspect} />
-          {sp.extra && (
-            <Artwork
-              src={sp.extra.src}
-              name={`${sp.name} — scan to book`}
-              aspect={sp.extra.aspect}
-              hideOnError
-            />
-          )}
         </div>
       ))}
 

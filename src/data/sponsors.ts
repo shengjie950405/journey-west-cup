@@ -18,11 +18,8 @@ export interface Sponsor {
   /** What they are giving players on the day */
   perk: string;
   perkCn?: string;
-  /**
-   * Optional second piece of artwork shown under the main one — e.g. a
-   * scan-to-book card. Hidden entirely if the file is not present.
-   */
-  extra?: { src: string; aspect: number };
+  /** Optional line under the name, e.g. the disciplines a clinic covers */
+  tagline?: string;
 }
 
 export interface ContactLink {
@@ -54,11 +51,13 @@ export const PERK_SPONSORS: Sponsor[] = [
   {
     id: 'form-function',
     name: 'Form & Function Physio',
-    logo: 'assets/sponsors/form-function.jpg',
+    // The scan card carries the logo, the QR and the support line, so it stands
+    // in for the plain logo rather than sitting under a near-duplicate of it.
+    logo: 'assets/sponsors/form-function-qr.jpg',
     aspect: 1,
+    tagline: 'Physio · Chiropractic · Massage',
     perk: 'Sideline physio and massage all evening',
     perkCn: '场边理疗与按摩',
-    extra: { src: 'assets/sponsors/form-function-qr.jpg', aspect: 1 },
   },
   {
     id: 'j17',
