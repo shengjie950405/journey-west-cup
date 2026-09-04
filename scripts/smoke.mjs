@@ -89,8 +89,22 @@ check('sponsor contact links tappable',
   (await page.locator('a[href^="tel:"]').count()) >= 1 &&
   (await page.locator('a[href^="mailto:"]').count()) >= 1 &&
   (await page.locator('a[href^="https://jessicayinhomes"]').count()) === 1);
-// Logos are dropped in separately; a missing file must degrade to the name.
-check('missing logos fall back to names', fieldsText.includes('Fantuan Delivery'));
+// Artwork must actually load — a wrong filename or case would 404 silently.
+await page.evaluate(() => {
+  const m = document.querySelector('main');
+  if (m) m.scrollTop = m.scrollHeight;
+});
+await page.waitForTimeout(1200);
+const art = await page.evaluate(() =>
+  [...document.querySelectorAll('img[src*="/sponsors/"], img[src*="assets/sponsors"]')]
+    .map((i) => ({ src: i.getAttribute('src'), ok: i.complete && i.naturalWidth > 0 })));
+check('five sponsor images rendered', art.length === 5, `found ${art.length}`);
+check('every sponsor image loaded', art.length > 0 && art.every((a) => a.ok),
+  art.filter((a) => !a.ok).map((a) => a.src).join(', ') || 'all ok');
+await page.evaluate(() => {
+  const m = document.querySelector('main');
+  if (m) m.scrollTop = 0;
+});
 check('field layout still above sponsors',
   fieldsText.indexOf('Field Layout') < fieldsText.indexOf('Our Sponsors'));
 

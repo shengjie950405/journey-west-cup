@@ -13,8 +13,8 @@ export interface Sponsor {
   /** Chinese name, shown alongside where the sponsor has one */
   cn?: string;
   logo: string;
-  /** Compact label for the logo tile when the image file is missing */
-  short: string;
+  /** Natural aspect ratio (width / height) of the artwork */
+  aspect: number;
   /** What they are giving players on the day */
   perk: string;
   perkCn?: string;
@@ -32,7 +32,8 @@ export const PERK_SPONSORS: Sponsor[] = [
     name: 'Fantuan Delivery',
     cn: '饭团外卖',
     logo: 'assets/sponsors/fantuan.png',
-    short: 'Fantuan',
+    /** Natural aspect (w/h), so the frame reserves the right height before load */
+    aspect: 4001 / 2251,
     perk: 'Free bubble tea for everyone',
     perkCn: '免费奶茶',
   },
@@ -41,15 +42,15 @@ export const PERK_SPONSORS: Sponsor[] = [
     name: 'Dudu Fresh',
     cn: '嘟嘟快送',
     logo: 'assets/sponsors/dudu-fresh.png',
-    short: 'Dudu',
+    aspect: 715 / 1101,
     perk: 'Free snacks and drinks on site',
     perkCn: '免费零食与饮品',
   },
   {
     id: 'form-function',
     name: 'Form & Function Physio',
-    logo: 'assets/sponsors/form-function.png',
-    short: 'F&F',
+    logo: 'assets/sponsors/form-function.jpg',
+    aspect: 1,
     perk: 'Sideline physio and massage all evening',
     perkCn: '场边理疗与按摩',
   },
@@ -57,7 +58,7 @@ export const PERK_SPONSORS: Sponsor[] = [
     id: 'j17',
     name: 'J17 Performance',
     logo: 'assets/sponsors/j17-performance.png',
-    short: 'J17',
+    aspect: 1024 / 1536,
     perk: 'A training gift for every athlete',
     perkCn: '每位运动员一份运动装备礼品',
   },
@@ -68,8 +69,8 @@ export const SEASON_SPONSOR = {
   id: 'jessica-yin',
   name: 'Jessica Yin',
   role: 'Broker · RE/MAX Imperial Realty Inc., Brokerage',
-  logo: 'assets/sponsors/jessica-yin.png',
-  short: 'JY',
+  logo: 'assets/sponsors/jessica-yin.jpg',
+  aspect: 1278 / 2287,
   blurb:
     'Our season sponsor. Every Wukong Ultimate event this year — this tournament included — runs with the full backing of the Jessica Yin team.',
   blurbCn: '我们的年度赞助商，俱乐部全年活动均由 Jessica Yin 团队全力支持。',

@@ -4,36 +4,35 @@ import { SectionHeading } from './SectionHeading';
 import { PERK_SPONSORS, SEASON_SPONSOR } from '../data/sponsors';
 
 /**
- * A sponsor's mark. Logo files live in `public/assets/sponsors/`; if one is
- * missing we show the name instead of a broken image, so the layout holds
- * whether or not every asset has landed yet.
+ * A sponsor's artwork. These are posters and cards rather than small marks, so
+ * they render at full width at their natural aspect — the detail on them (perks,
+ * QR codes, contact details) is the point.
+ *
+ * The frame reserves height from the aspect ratio so the page does not jump as
+ * images arrive, and a missing file falls back to the sponsor's name.
  */
-function Logo({
+function Artwork({
   src,
   name,
-  short,
-  size,
-  radius = 10,
+  aspect,
   onDark = false,
+  eager = false,
 }: {
   src: string;
   name: string;
-  /** Compact stand-in when the image is missing — a tile is too small for a full name */
-  short: string;
-  size: number;
-  radius?: number;
+  aspect: number;
   onDark?: boolean;
+  eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
 
-  const shell = {
-    width: size,
-    height: size,
-    flex: 'none' as const,
-    borderRadius: radius,
+  const frame = {
+    width: '100%',
+    aspectRatio: String(aspect),
+    borderRadius: 10,
     overflow: 'hidden',
-    background: onDark ? 'rgba(238,241,248,.10)' : 'var(--paper-warm)',
-    border: `1px solid ${onDark ? 'rgba(238,241,248,.18)' : 'var(--border-soft)'}`,
+    background: onDark ? 'rgba(238,241,248,.07)' : 'var(--paper-warm)',
+    border: `1px solid ${onDark ? 'rgba(238,241,248,.16)' : 'var(--border-soft)'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -41,31 +40,31 @@ function Logo({
 
   if (failed) {
     return (
-      <div style={shell}>
+      <div style={{ ...frame, aspectRatio: '3' }}>
         <span
           style={{
             fontFamily: 'var(--font-display)',
             fontWeight: 700,
-            // Longer stand-ins need smaller type to sit inside the tile.
-            fontSize: size * (short.length <= 3 ? 0.3 : short.length <= 5 ? 0.24 : 0.2),
-            lineHeight: 1.1,
+            fontSize: 16,
             textAlign: 'center',
-            padding: 4,
+            padding: 10,
             color: onDark ? 'var(--gold)' : 'var(--ink-2)',
-            overflowWrap: 'anywhere',
           }}
         >
-          {short}
+          {name}
         </span>
       </div>
     );
   }
 
   return (
-    <div style={shell}>
+    <div style={frame}>
       <img
         src={src}
         alt={name}
+        // Sponsor art runs to a few MB in total; only the hero loads up front.
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
         onError={() => setFailed(true)}
         style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
       />
@@ -80,11 +79,7 @@ export function Sponsors() {
 
   return (
     <>
-      <SectionHeading
-        cn={showCn ? '贊助' : ''}
-        title="Our Sponsors"
-        margin="6px 2px 0"
-      />
+      <SectionHeading cn={showCn ? '贊助' : ''} title="Our Sponsors" margin="6px 2px 0" />
 
       <div
         style={{
@@ -129,30 +124,30 @@ export function Sponsors() {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 13, alignItems: 'flex-start', marginTop: 10 }}>
-          <Logo src={s.logo} name={s.name} short={s.short} size={86} radius={10} onDark />
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                fontWeight: 700,
-                lineHeight: 1.15,
-              }}
-            >
-              {s.name}
-            </div>
-            <div
-              style={{
-                fontSize: 11.5,
-                color: 'rgba(238,241,248,.62)',
-                marginTop: 2,
-                lineHeight: 1.4,
-              }}
-            >
-              {s.role}
-            </div>
-          </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 24,
+            fontWeight: 700,
+            lineHeight: 1.15,
+            marginTop: 6,
+          }}
+        >
+          {s.name}
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            color: 'rgba(238,241,248,.62)',
+            marginTop: 2,
+            lineHeight: 1.4,
+          }}
+        >
+          {s.role}
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <Artwork src={s.logo} name={s.name} aspect={s.aspect} onDark eager />
         </div>
 
         <div
@@ -160,7 +155,7 @@ export function Sponsors() {
             fontSize: 13.5,
             lineHeight: 1.6,
             color: 'rgba(238,241,248,.85)',
-            marginTop: 11,
+            marginTop: 13,
           }}
         >
           {s.blurb}
@@ -185,9 +180,7 @@ export function Sponsors() {
             borderTop: '1px solid rgba(238,241,248,.16)',
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)' }}>
-            {s.ask}
-          </div>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--gold)' }}>{s.ask}</div>
           {showCn && (
             <div style={{ fontSize: 12, color: 'rgba(238,241,248,.6)', marginTop: 2 }}>
               {s.askCn}
@@ -208,8 +201,8 @@ export function Sponsors() {
                   background: 'rgba(238,241,248,.12)',
                   border: '1px solid rgba(238,241,248,.2)',
                   borderRadius: 999,
-                  padding: '5px 11px',
-                  fontSize: 12,
+                  padding: '6px 12px',
+                  fontSize: 12.5,
                   fontWeight: 700,
                   color: 'var(--text-on-dark)',
                   textDecoration: 'none',
@@ -251,25 +244,22 @@ export function Sponsors() {
             border: '1px solid var(--border-soft)',
             borderRadius: 14,
             boxShadow: 'var(--shadow-card)',
-            padding: '11px 13px',
+            padding: '12px 13px 13px',
             display: 'flex',
-            alignItems: 'center',
-            gap: 12,
+            flexDirection: 'column',
+            gap: 10,
           }}
         >
-          <Logo src={sp.logo} name={sp.name} short={sp.short} size={54} radius={9} />
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, flexWrap: 'wrap' }}>
-              <span
-                style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}
-              >
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 700 }}>
                 {sp.name}
               </span>
               {showCn && sp.cn && (
                 <span
                   style={{
                     fontFamily: 'var(--font-cn)',
-                    fontSize: 15,
+                    fontSize: 16,
                     color: 'var(--seal-red)',
                   }}
                 >
@@ -277,7 +267,7 @@ export function Sponsors() {
                 </span>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 3 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 4 }}>
               <span
                 style={{
                   width: 7,
@@ -289,19 +279,19 @@ export function Sponsors() {
                 }}
               />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, lineHeight: 1.45, color: 'var(--ink-1)' }}>
+                <div style={{ fontSize: 13.5, lineHeight: 1.45, color: 'var(--ink-1)' }}>
                   {sp.perk}
                 </div>
                 {showCn && sp.perkCn && (
-                  <div
-                    style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}
-                  >
+                  <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 1 }}>
                     {sp.perkCn}
                   </div>
                 )}
               </div>
             </div>
           </div>
+
+          <Artwork src={sp.logo} name={sp.name} aspect={sp.aspect} />
         </div>
       ))}
 
