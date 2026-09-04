@@ -17,12 +17,15 @@ function Artwork({
   aspect,
   onDark = false,
   eager = false,
+  hideOnError = false,
 }: {
   src: string;
   name: string;
   aspect: number;
   onDark?: boolean;
   eager?: boolean;
+  /** Supplementary art: render nothing rather than a placeholder if absent. */
+  hideOnError?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
 
@@ -37,6 +40,8 @@ function Artwork({
     alignItems: 'center',
     justifyContent: 'center',
   };
+
+  if (failed && hideOnError) return null;
 
   if (failed) {
     return (
@@ -292,6 +297,14 @@ export function Sponsors() {
           </div>
 
           <Artwork src={sp.logo} name={sp.name} aspect={sp.aspect} />
+          {sp.extra && (
+            <Artwork
+              src={sp.extra.src}
+              name={`${sp.name} — scan to book`}
+              aspect={sp.extra.aspect}
+              hideOnError
+            />
+          )}
         </div>
       ))}
 

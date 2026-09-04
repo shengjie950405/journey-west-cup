@@ -18,6 +18,11 @@ export interface Sponsor {
   /** What they are giving players on the day */
   perk: string;
   perkCn?: string;
+  /**
+   * Optional second piece of artwork shown under the main one — e.g. a
+   * scan-to-book card. Hidden entirely if the file is not present.
+   */
+  extra?: { src: string; aspect: number };
 }
 
 export interface ContactLink {
@@ -53,6 +58,7 @@ export const PERK_SPONSORS: Sponsor[] = [
     aspect: 1,
     perk: 'Sideline physio and massage all evening',
     perkCn: '场边理疗与按摩',
+    extra: { src: 'assets/sponsors/form-function-qr.jpg', aspect: 1 },
   },
   {
     id: 'j17',

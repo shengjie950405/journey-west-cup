@@ -98,7 +98,8 @@ await page.waitForTimeout(1200);
 const art = await page.evaluate(() =>
   [...document.querySelectorAll('img[src*="/sponsors/"], img[src*="assets/sponsors"]')]
     .map((i) => ({ src: i.getAttribute('src'), ok: i.complete && i.naturalWidth > 0 })));
-check('five sponsor images rendered', art.length === 5, `found ${art.length}`);
+// At least one per sponsor; more once optional extras (e.g. a scan card) land.
+check('sponsor images rendered', art.length >= 5, `found ${art.length}`);
 check('every sponsor image loaded', art.length > 0 && art.every((a) => a.ok),
   art.filter((a) => !a.ok).map((a) => a.src).join(', ') || 'all ok');
 await page.evaluate(() => {
